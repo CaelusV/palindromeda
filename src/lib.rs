@@ -4,7 +4,7 @@ pub struct Palindrome(u64);
 impl Palindrome {
     /// Construct a palindrome from the first half of a digit and a provided length.
     /// Will panic if 'length' isn't 2x or 2x - 1 the size of 'digits_half.len()'.
-    fn construct_palindrome(length: usize, digits_half: &[u64]) -> Self {
+    fn construct_palindrome(length: usize, digits_half: &[u8]) -> Self {
         assert_eq!(
             length.div_ceil(2),
             digits_half.len(),
@@ -20,14 +20,32 @@ impl Palindrome {
         let mut palindrome = 0;
         for fh_idx in 0..digits_half.len() {
             palindrome *= 10;
-            palindrome += digits_half[fh_idx];
+            palindrome += digits_half[fh_idx] as u64;
         }
         for sh_rev_idx in 1..=second_half_range {
             palindrome *= 10;
-            palindrome += digits_half[second_half_range - sh_rev_idx];
+            palindrome += digits_half[second_half_range - sh_rev_idx] as u64;
         }
 
         Palindrome(palindrome)
+    }
+
+    /// Return the digits and the length of a number.
+    fn digits_and_length(mut x: u64) -> (Vec<u8>, usize) {
+        let mut length = 0;
+        let mut digits = Vec::new();
+
+        // We use a "do while" loop, to account for when x=0.
+        loop {
+            digits.push((x % 10) as u8);
+            x /= 10;
+            length += 1;
+            if x == 0 {
+                break;
+            }
+        }
+        digits.reverse(); // Reversing isn't that terrible in release mode.
+        (digits, length)
     }
 
     /// Return the first palindromic number that is smaller.
@@ -70,25 +88,13 @@ impl Palindrome {
     }
 
     /// Return the first palindromic number that is less than or equal to 'x'.
-    // FIXME: A lot of duplicated code between le() and ge().
     pub fn le(x: u64) -> Self {
         if Self::is_palindromic(x) {
             return Palindrome(x);
         }
 
-        // Find the length of x.
-        let mut length = (x.checked_ilog10().unwrap_or(0) + 1) as usize;
-
+        let (digits, mut length) = Self::digits_and_length(x);
         let first_half_length = length.div_ceil(2);
-        // Get the first half of the number (center digit included)
-        let mut digits = Vec::with_capacity(length); // Easier than array when shifting around values.
-        let mut temp = x;
-        for i in 1..=length {
-            let div = 10u64.pow((length - i) as u32);
-            let digit = temp / div;
-            digits.push(digit);
-            temp %= div;
-        }
 
         // We want to promote numbers that would create a palindrome less than x.
         // Ex: x=1451 would create the palindrome 1441, which is less than x.
@@ -152,19 +158,8 @@ impl Palindrome {
             return Palindrome(x);
         }
 
-        // Find the length of x.
-        let length = (x.checked_ilog10().unwrap_or(0) + 1) as usize;
-
+        let (digits, length) = Self::digits_and_length(x);
         let first_half_length = length.div_ceil(2);
-        // Get the first half of the number (center digit included)
-        let mut digits = Vec::with_capacity(length); // Easier than array when shifting around values.
-        let mut temp = x;
-        for i in 1..=length {
-            let div = 10u64.pow((length - i) as u32);
-            let digit = temp / div;
-            digits.push(digit);
-            temp %= div;
-        }
 
         // We want to promote numbers that would create a palindrome less than x.
         // Ex: x=1451 would create the palindrome 1441, which is less than x.
