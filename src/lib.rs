@@ -116,9 +116,11 @@ impl Palindrome {
                     if left_side_idx == 0 && new_digits[left_side_idx] == 1 {
                         front_zeroes_removed += 1;
                         length -= 1;
-                        // Edge case: 10 would become 0, but not before crashing
-                        // when trying to construct a palindrome with an empty vector.
-                        if first_half_length == 1 {
+                        // Edge case: when a number like 10 or 1000 with an even
+                        // length is encountered, as we don't want to remove
+                        // the relevant half_digit, but just reduce the length and
+                        // set the front digit to 9.
+                        if length % 2 == 1 {
                             front_zeroes_removed -= 1;
                             new_digits[left_side_idx] = 9;
                         }
@@ -259,6 +261,10 @@ mod tests {
         assert_eq!(181, pal.decrement().0);
         let pal = Palindrome(1991);
         assert_eq!(1881, pal.decrement().0);
+        let pal = Palindrome(100001);
+        assert_eq!(99999, pal.decrement().0);
+        let pal = Palindrome(1001);
+        assert_eq!(999, pal.decrement().0)
     }
 
     #[test]
@@ -290,6 +296,8 @@ mod tests {
         assert_eq!(191, Palindrome::le(201).0);
         assert_eq!(181, Palindrome::le(190).0);
         assert_eq!(1881, Palindrome::le(1990).0);
+        assert_eq!(99999, Palindrome::le(100000).0);
+        assert_eq!(999, Palindrome::le(1000).0)
     }
 
     #[test]
