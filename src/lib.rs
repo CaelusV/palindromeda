@@ -187,52 +187,6 @@ impl Palindrome {
     }
 }
 
-pub trait IsPalindrome {
-    /// Return whether `x` is a palindrome.
-    fn is_palindrome(&self) -> bool;
-}
-
-impl IsPalindrome for u64 {
-    fn is_palindrome(&self) -> bool {
-        let mut x = *self;
-        if x % 10 == 0 && x != 0 {
-            return false;
-        }
-
-        let mut right_half = 0;
-        while x > right_half {
-            right_half = right_half * 10 + x % 10;
-            x /= 10;
-        }
-
-        return x == right_half || x == right_half / 10;
-    }
-}
-
-impl IsPalindrome for u32 {
-    fn is_palindrome(&self) -> bool {
-        (*self as u64).is_palindrome()
-    }
-}
-
-impl IsPalindrome for u16 {
-    fn is_palindrome(&self) -> bool {
-        (*self as u64).is_palindrome()
-    }
-}
-
-impl IsPalindrome for u8 {
-    fn is_palindrome(&self) -> bool {
-        (*self as u64).is_palindrome()
-    }
-}
-
-impl IsPalindrome for Palindrome {
-    fn is_palindrome(&self) -> bool {
-        self.0.is_palindrome()
-    }
-}
-
 impl From<Palindrome> for u64 {
     fn from(value: Palindrome) -> Self {
         value.0
@@ -447,7 +401,8 @@ pub struct PalindromeIter {
 }
 
 impl PalindromeIter {
-    pub fn from(from: u64, to: u64) -> Self {
+    /// Iterate over all palindromes in the range `from..to`.
+    pub fn from_u64(from: u64, to: u64) -> Self {
         Self {
             from: Palindrome::ge(from),
             // If it's not a palindrome, then we want to include the previous palindrome.
@@ -468,6 +423,52 @@ impl Iterator for PalindromeIter {
         } else {
             return None;
         }
+    }
+}
+
+pub trait IsPalindrome {
+    /// Return whether `self` is a palindrome.
+    fn is_palindrome(&self) -> bool;
+}
+
+impl IsPalindrome for u64 {
+    fn is_palindrome(&self) -> bool {
+        let mut x = *self;
+        if x % 10 == 0 && x != 0 {
+            return false;
+        }
+
+        let mut right_half = 0;
+        while x > right_half {
+            right_half = right_half * 10 + x % 10;
+            x /= 10;
+        }
+
+        return x == right_half || x == right_half / 10;
+    }
+}
+
+impl IsPalindrome for u32 {
+    fn is_palindrome(&self) -> bool {
+        (*self as u64).is_palindrome()
+    }
+}
+
+impl IsPalindrome for u16 {
+    fn is_palindrome(&self) -> bool {
+        (*self as u64).is_palindrome()
+    }
+}
+
+impl IsPalindrome for u8 {
+    fn is_palindrome(&self) -> bool {
+        (*self as u64).is_palindrome()
+    }
+}
+
+impl IsPalindrome for Palindrome {
+    fn is_palindrome(&self) -> bool {
+        self.0.is_palindrome()
     }
 }
 
