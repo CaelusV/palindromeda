@@ -1,5 +1,5 @@
 use forward_ref::{forward_ref_binop, forward_ref_op_assign};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Palindrome(u64);
@@ -363,6 +363,15 @@ impl Rem<Palindrome> for u64 {
 }
 
 forward_ref_binop!(impl Rem, rem for u64, Palindrome);
+
+impl RemAssign<Palindrome> for u64 {
+    #[inline]
+    fn rem_assign(&mut self, rhs: Palindrome) {
+        *self %= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl RemAssign, rem_assign for u64, Palindrome);
 
 impl Sub<u64> for Palindrome {
     type Output = u64;
