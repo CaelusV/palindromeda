@@ -6,6 +6,8 @@
 //! If you want to check whether an **unsigned integer** is a palindrome,
 //! use the [`is_palindrome`](`IsPalindrome::is_palindrome`) function:
 //! ```
+//! use palindromeda::IsPalindrome;
+//!
 //! let pal1: u64 = 8008; // This is a palindrome.
 //! println!("Is {pal1} a palindrome? {}", pal1.is_palindrome());
 //!
@@ -22,6 +24,8 @@
 //! Generating a palindrome is as easy as using either [`Palindrome::le`] or [`Palindrome::ge`]
 //! for the nearest palindrome to your number:
 //! ```
+//! use palindromeda::Palindrome;
+//!
 //! let number1: u64 = 420; // This number is too high.
 //! // Let's get a palindrome that's lower.
 //! println!("Palindrome that's lower: {}", Palindrome::le(number1));
