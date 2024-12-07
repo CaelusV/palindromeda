@@ -1,3 +1,6 @@
+use forward_ref::{forward_ref_binop, forward_ref_op_assign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, Sub, SubAssign};
+
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Palindrome(u64);
 
@@ -265,6 +268,152 @@ impl PartialOrd<Palindrome> for u64 {
         self.partial_cmp(&other.0)
     }
 }
+
+impl Add<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn add(self, rhs: u64) -> Self::Output {
+        self.0 + rhs
+    }
+}
+
+forward_ref_binop!(impl Add, add for Palindrome, u64);
+
+impl Add<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn add(self, rhs: Palindrome) -> Self::Output {
+        self + rhs.0
+    }
+}
+
+forward_ref_binop!(impl Add, add for u64, Palindrome);
+
+impl AddAssign<Palindrome> for u64 {
+    #[inline]
+    fn add_assign(&mut self, rhs: Palindrome) {
+        *self += rhs.0;
+    }
+}
+
+forward_ref_op_assign!(impl AddAssign, add_assign for u64, Palindrome);
+
+impl Div<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn div(self, rhs: u64) -> Self::Output {
+        self.0 / rhs
+    }
+}
+
+forward_ref_binop!(impl Div, div for Palindrome, u64);
+
+impl Div<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn div(self, rhs: Palindrome) -> Self::Output {
+        self / rhs.0
+    }
+}
+
+forward_ref_binop!(impl Div, div for u64, Palindrome);
+
+impl DivAssign<Palindrome> for u64 {
+    #[inline]
+    fn div_assign(&mut self, rhs: Palindrome) {
+        *self /= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl DivAssign, div_assign for u64, Palindrome);
+
+impl Mul<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn mul(self, rhs: u64) -> Self::Output {
+        self.0 * rhs
+    }
+}
+
+forward_ref_binop!(impl Mul, mul for Palindrome, u64);
+
+impl Mul<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn mul(self, rhs: Palindrome) -> Self::Output {
+        self * rhs.0
+    }
+}
+
+forward_ref_binop!(impl Mul, mul for u64, Palindrome);
+
+impl MulAssign<Palindrome> for u64 {
+    #[inline]
+    fn mul_assign(&mut self, rhs: Palindrome) {
+        *self *= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl MulAssign, mul_assign for u64, Palindrome);
+
+impl Rem<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn rem(self, rhs: u64) -> Self::Output {
+        self.0 % rhs
+    }
+}
+
+forward_ref_binop!(impl Rem, rem for Palindrome, u64);
+
+impl Rem<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn rem(self, rhs: Palindrome) -> Self::Output {
+        self % rhs.0
+    }
+}
+
+forward_ref_binop!(impl Rem, rem for u64, Palindrome);
+
+impl Sub<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn sub(self, rhs: u64) -> Self::Output {
+        self.0 - rhs
+    }
+}
+
+forward_ref_binop!(impl Sub, sub for Palindrome, u64);
+
+impl Sub<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn sub(self, rhs: Palindrome) -> Self::Output {
+        self - rhs.0
+    }
+}
+
+forward_ref_binop!(impl Sub, sub for u64, Palindrome);
+
+impl SubAssign<Palindrome> for u64 {
+    #[inline]
+    fn sub_assign(&mut self, rhs: Palindrome) {
+        *self -= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl SubAssign, sub_assign for u64, Palindrome);
 
 pub struct PalindromeIter {
     from: Palindrome,

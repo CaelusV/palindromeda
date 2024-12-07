@@ -3,6 +3,9 @@ name = "palindromeda"
 version = "0.1.0"
 edition = "2021"
 
+[dependencies]
+forward_ref = "1.0.0"
+
 [profile.release]
 codegen-units = 1
 lto = "fat"
