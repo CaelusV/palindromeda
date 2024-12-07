@@ -411,6 +411,17 @@ pub struct PalindromeIter {
 
 impl PalindromeIter {
     /// Iterate over all palindromes in the range `from..to`.
+    ///
+    /// **NOTE:** [`std::iter::Step`] is currently nightly/experimental,
+    /// so this will have to do for now.
+    pub fn from(from: Palindrome, to: Palindrome) -> Self {
+        Self {
+            from: Palindrome::ge(from.into()),
+            to,
+        }
+    }
+
+    /// Iterate over all palindromes in the range `from..to`.
     pub fn from_u64(from: u64, to: u64) -> Self {
         Self {
             from: Palindrome::ge(from),
