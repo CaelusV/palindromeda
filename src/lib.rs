@@ -5,6 +5,9 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, S
 pub struct Palindrome(u64);
 
 impl Palindrome {
+    pub const MIN: u64 = 0;
+    /// The largest possible palindrome that can fit in a [`u64`].
+    pub const MAX: u64 = 18_446_744_066_044_764_481;
     /// Construct a palindrome from the first half of a digit and a provided length.
     ///
     /// NOTE: Will panic if `length` isn't `2x` or `2x - 1` the size of `digits_half.len()`.
@@ -54,7 +57,7 @@ impl Palindrome {
 
     /// Return the previous palindromic number.
     ///
-    /// **NOTE:** Lowest return-value is `0`.
+    /// **NOTE:** Lowest return-value is [`Self::MIN`].
     pub fn previous(&self) -> Self {
         if self.0 == 0 {
             return Self(0);
@@ -64,11 +67,10 @@ impl Palindrome {
 
     /// Return the next palindromic number.
     ///
-    /// **NOTE:** Highest return-value is the first palindromic number less than [`u64::MAX`].
+    /// **NOTE:** Highest return-value is [`Self::MAX`].
     pub fn next(&self) -> Self {
-        // Largest possible palindrome to fit in u64.
-        if self.0 >= 18446744066044764481 {
-            return Self(self.0);
+        if self.0 >= Self::MAX {
+            return Self(Self::MAX);
         }
         Self::ge(self.0 + 1)
     }
@@ -133,11 +135,11 @@ impl Palindrome {
     }
 
     /// Return the first palindromic number that is greater than or equal to `x`.
+    ///
+    /// **ATTENTION:** Any value above [`Self::MAX`] will return [`Self::MAX`].
     pub fn ge(x: u64) -> Self {
-        // Largest possible palindrome to fit in u64.
-        // FIXME: This is returning a palindromic number LESS than 'x'.
-        if x > 18446744066044764481 {
-            return Self(18446744066044764481);
+        if x >= Self::MAX {
+            return Self(Self::MAX);
         }
 
         if x.is_palindrome() {
