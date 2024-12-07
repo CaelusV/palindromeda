@@ -1,3 +1,19 @@
+[![Crates.io][crates-io-badge]][crates-io-url]
+[![Docs.rs][docs-badge]][docs-url]
+[![MIT License][license-badge]][license-url]
+
+[crates-io-url]: https://crates.io/crates/palindromeda
+
+[crates-io-badge]: https://img.shields.io/crates/v/palindromeda.svg?style=for-the-badge&color=purple
+
+[docs-url]: https://docs.rs/palindromeda/latest/palindromeda/
+
+[docs-badge]: https://img.shields.io/badge/Docs-rs-purple.svg?style=for-the-badge&logo=docsdotrs
+
+[license-url]: https://github.com/CaelusV/palindromeda/blob/master/LICENSE
+
+[license-badge]: https://img.shields.io/badge/License-MIT-purple.svg?style=for-the-badge
+
 # Palindrome generator and checker for numbers.
 A palindrome is a letter, number or any other sequence that is the exact same forwards and backwards.
 This crate is specifically for palindromic numbers.
