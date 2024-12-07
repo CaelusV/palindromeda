@@ -1,5 +1,8 @@
 use forward_ref::{forward_ref_binop, forward_ref_op_assign};
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign};
+use std::{
+    fmt::Display,
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Palindrome(u64);
@@ -186,6 +189,12 @@ impl Palindrome {
             &new_digits[..first_half_length + front_ones_added],
         );
         palindrome
+    }
+}
+
+impl Display for Palindrome {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
