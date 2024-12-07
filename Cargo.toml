@@ -2,6 +2,7 @@
 name = "palindromeda"
 version = "0.1.0"
 description = "Palindrome number generator and checker"
+documentation = "https://docs.rs/palindromeda"
 repository = "https://github.com/CaelusV/palindromeda"
 edition = "2021"
 license = "MIT"
