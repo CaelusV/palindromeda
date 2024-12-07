@@ -73,29 +73,9 @@ impl Palindrome {
         Self::ge(self.0 + 1)
     }
 
-    /// Return whether `x` is a palindrome. Same as [`Self::is_palindromic()`].
-    pub fn is_palindrome(x: u64) -> bool {
-        Self::is_palindromic(x)
-    }
-
-    /// Return whether `x` is palindromic. Same as [`Self::is_palindrome()`].
-    pub fn is_palindromic(mut x: u64) -> bool {
-        if x % 10 == 0 && x != 0 {
-            return false;
-        }
-
-        let mut right_half = 0;
-        while x > right_half {
-            right_half = right_half * 10 + x % 10;
-            x /= 10;
-        }
-
-        return x == right_half || x == right_half / 10;
-    }
-
     /// Return the first palindromic number that is less than or equal to `x`.
     pub fn le(x: u64) -> Self {
-        if Self::is_palindromic(x) {
+        if x.is_palindrome() {
             return Palindrome(x);
         }
 
@@ -160,7 +140,7 @@ impl Palindrome {
             return Self(18446744066044764481);
         }
 
-        if Self::is_palindromic(x) {
+        if x.is_palindrome() {
             return Palindrome(x);
         }
 
@@ -207,6 +187,52 @@ impl Palindrome {
     }
 }
 
+pub trait IsPalindrome {
+    /// Return whether `x` is a palindrome.
+    fn is_palindrome(&self) -> bool;
+}
+
+impl IsPalindrome for u64 {
+    fn is_palindrome(&self) -> bool {
+        let mut x = *self;
+        if x % 10 == 0 && x != 0 {
+            return false;
+        }
+
+        let mut right_half = 0;
+        while x > right_half {
+            right_half = right_half * 10 + x % 10;
+            x /= 10;
+        }
+
+        return x == right_half || x == right_half / 10;
+    }
+}
+
+impl IsPalindrome for u32 {
+    fn is_palindrome(&self) -> bool {
+        (*self as u64).is_palindrome()
+    }
+}
+
+impl IsPalindrome for u16 {
+    fn is_palindrome(&self) -> bool {
+        (*self as u64).is_palindrome()
+    }
+}
+
+impl IsPalindrome for u8 {
+    fn is_palindrome(&self) -> bool {
+        (*self as u64).is_palindrome()
+    }
+}
+
+impl IsPalindrome for Palindrome {
+    fn is_palindrome(&self) -> bool {
+        self.0.is_palindrome()
+    }
+}
+
 impl From<Palindrome> for u64 {
     fn from(value: Palindrome) -> Self {
         value.0
@@ -221,7 +247,7 @@ impl PartialEq<u64> for Palindrome {
 
 impl PartialEq<Palindrome> for u64 {
     fn eq(&self, other: &Palindrome) -> bool {
-        self == other
+        *self == other.0
     }
 }
 
