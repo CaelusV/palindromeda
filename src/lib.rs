@@ -146,57 +146,50 @@ impl Palindrome {
             return Palindrome(x);
         }
 
-        let (digits, mut length) = Self::digits_and_length(x);
-        let first_half_length = length.div_ceil(2);
-
-        // We want to promote numbers that would create a palindrome less than x.
-        // Ex: x=1451 would create the palindrome 1441, which is less than x.
-        let half_digits = &digits[..first_half_length];
-        let mut new_digits = digits.clone();
-        let mut front_zeroes_removed = 0;
-        // We go about it by going from the middle to the end of the palindrome,
-        // which is the same as going from the middle to the start of the 'digits'.
-        // Surely nothing can go wrong...
-        'outer: for (rev_idx, x) in half_digits.iter().rev().enumerate() {
-            // We then compare that first half of 'digits' with the corresponding second half.
-            if x > &digits[length - first_half_length + rev_idx] {
-                // If any digit is greater than its corresponding digit,
-                // then we start over from the middle, demoting relevant digits.
-                for i in 0..first_half_length {
-                    let left_side_idx = first_half_length - 1 - i;
-
-                    // We can't exactly demote a number to less than 0.
-                    if new_digits[left_side_idx] == 0 {
-                        new_digits[left_side_idx] = 9;
-                        continue; // We're not done demoting...
-                    }
-
-                    // In case we change the first digit to 0.
-                    if left_side_idx == 0 && new_digits[left_side_idx] == 1 {
-                        front_zeroes_removed += 1;
-                        length -= 1;
-                        // Edge case: when a number like 10 or 1000 with an even
-                        // length is encountered, as we don't want to remove
-                        // the relevant half_digit, but just reduce the length and
-                        // set the front digit to 9.
-                        if length % 2 == 1 {
-                            front_zeroes_removed -= 1;
-                            new_digits[left_side_idx] = 9;
-                        }
-                        break;
-                    }
-
-                    new_digits[left_side_idx] -= 1;
-                    break 'outer;
-                }
-            }
+        let (mut digits, mut length) = Self::digits_and_length(x);
+        let half_length = length.div_ceil(2); // As in amount of digits.
+        let mut fh_idx = half_length - 1;
+        let mut sh_idx = half_length;
+        if length % 2 == 1 {
+            sh_idx -= 1; // We want center value of uneven number.
         }
 
-        let palindrome = Self::construct_palindrome(
-            length,
-            &new_digits[front_zeroes_removed..first_half_length],
-        );
-        palindrome
+        let mut skip = 0;
+        loop {
+            // 100 -> 99
+            // 372 -> 363
+            // 4847 -> 4774
+            // 4003 -> 3993
+            if digits[fh_idx] < digits[sh_idx] {
+                return Self::construct_palindrome(length, &digits[..half_length]);
+            }
+            if digits[fh_idx] > digits[sh_idx] {
+                // First try to downgrade center value, if it's 0, set to 9 and continue.
+                // Once non-0 value found, -- it.
+                let center_idx = half_length - 1; // Center idx.
+                for i in 0..half_length {
+                    if digits[center_idx - i] == 0 {
+                        digits[center_idx - i] = 9;
+                        continue;
+                    }
+                    digits[center_idx - i] -= 1;
+                    // EDGE CASE: 100 -> 99 (length of first half digits CHANGES).
+                    // EDGE CASE: 10 -> 9 (length of first half digits DOESN'T CHANGE).
+                    if center_idx - i == 0 && digits[center_idx - i] == 0 {
+                        digits[center_idx - i] = 9;
+                        if length % 2 == 1 {
+                            skip += 1;
+                        }
+                        length -= 1; // Length always decreases by 1.
+                    }
+                    break;
+                }
+                return Self::construct_palindrome(length, &digits[skip..half_length]);
+            }
+
+            fh_idx -= 1;
+            sh_idx += 1;
+        }
     }
 
     /// Return the first palindromic number that is greater than or equal to `x`.
@@ -211,46 +204,36 @@ impl Palindrome {
             return Palindrome(x);
         }
 
-        let (digits, length) = Self::digits_and_length(x);
-        let first_half_length = length.div_ceil(2);
-
-        // We want to promote numbers that would create a palindrome less than x.
-        // Ex: x=1451 would create the palindrome 1441, which is less than x.
-        let half_digits = &digits[..first_half_length];
-        let mut new_digits = digits.clone();
-        let mut front_ones_added = 0;
-        // We go about it by going from the middle to the end of the palindrome,
-        // which is the same as going from the middle to the start of the 'digits'.
-        // Surely nothing can go wrong...
-        for (rev_idx, x) in half_digits.iter().rev().enumerate() {
-            // We then compare that first half of 'digits' with the corresponding second half.
-            if x < &digits[length - first_half_length + rev_idx] {
-                // If any digit is less than its corresponding digit,
-                // then we start over from the middle, promoting relevant digits.
-                for i in 0..first_half_length {
-                    let left_side_idx = first_half_length - 1 - i;
-
-                    // We can't exactly promote a number to 10.
-                    if new_digits[left_side_idx] == 9 {
-                        new_digits[left_side_idx] = 0;
-                        // In case we changed the first digit.
-                        if left_side_idx == 0 {
-                            new_digits.insert(0, 1);
-                            front_ones_added += 1;
-                        }
-                        continue; // We're not done promoting...
-                    }
-                    new_digits[left_side_idx] += 1;
-                    break;
-                }
-            }
+        let (mut digits, length) = Self::digits_and_length(x);
+        let half_length = length.div_ceil(2); // As in amount of digits.
+        let mut fh_idx = half_length - 1;
+        let mut sh_idx = half_length;
+        if length % 2 == 1 {
+            fh_idx -= 1; // We don't want center value of uneven number.
         }
 
-        let palindrome = Self::construct_palindrome(
-            length + front_ones_added,
-            &new_digits[..first_half_length + front_ones_added],
-        );
-        palindrome
+        loop {
+            if digits[fh_idx] > digits[sh_idx] {
+                return Self::construct_palindrome(length, &digits[..half_length]);
+            }
+            if digits[fh_idx] < digits[sh_idx] {
+                // First try to upgrade center value, if it's 9, set to 0 and continue.
+                // Once non-9 value found, ++ it. 999 is palindrome and can't happen.
+                let center_idx = half_length - 1; // Center idx.
+                for i in 0..half_length {
+                    if digits[center_idx - i] == 9 {
+                        digits[center_idx - i] = 0;
+                        continue;
+                    }
+                    digits[center_idx - i] += 1;
+                    break;
+                }
+                return Self::construct_palindrome(length, &digits[..half_length]);
+            }
+
+            fh_idx -= 1;
+            sh_idx += 1;
+        }
     }
 }
 
@@ -640,7 +623,7 @@ mod tests {
         assert_eq!(38783, Palindrome::closest(38794));
         assert_eq!(38783, Palindrome::closest(38832));
         assert_eq!(38883, Palindrome::closest(38833));
-        assert_eq!(11, Palindrome::closest(943854534));
+        assert_eq!(943858349, Palindrome::closest(943854534));
     }
 
     #[test]
@@ -721,7 +704,8 @@ mod tests {
         assert_eq!(181, Palindrome::le(190));
         assert_eq!(1881, Palindrome::le(1990));
         assert_eq!(99999, Palindrome::le(100000));
-        assert_eq!(999, Palindrome::le(1000))
+        assert_eq!(999, Palindrome::le(1000));
+        assert_eq!(34543, Palindrome::le(34550));
     }
 
     #[test]
@@ -735,6 +719,7 @@ mod tests {
         assert_eq!(202, Palindrome::ge(199));
         assert_eq!(191, Palindrome::ge(190));
         assert_eq!(1991, Palindrome::ge(1990));
+        assert_eq!(34543, Palindrome::ge(34504));
     }
 
     #[test]
