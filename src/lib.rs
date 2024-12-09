@@ -61,7 +61,8 @@ impl Palindrome {
 
     /// Return the palindrome closest to `x`.
     ///
-    /// **NOTE:** With a special case like `x=10`, return 11 instead of 9.
+    /// **NOTE:** If the closest palindrome is in both directions,
+    /// return the higher number. E.g.: `x=10` returns `11`.
     pub fn closest(x: u64) -> Self {
         let ge = Self::ge(x);
         let le = Self::le(x);
