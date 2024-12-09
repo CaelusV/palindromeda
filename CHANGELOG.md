@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-12-09
 
+### Fixed
+
+- Removed leftover println statement
+
+## [0.2.0] - 2024-12-09
+
 ### Added
 
 - Added PalindromeIter::len to efficiently calculate the length of the iterator.
