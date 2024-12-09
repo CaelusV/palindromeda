@@ -487,6 +487,69 @@ impl PalindromeIter {
             to: Palindrome(to),
         }
     }
+
+    /// Calculate the length of PalindromeIter.
+    ///
+    /// **NOTE:** This function is much faster than [`Self::count`] for any non-trivial range.
+    pub fn len(&self) -> usize {
+        // Calculate length from 0..self.from
+        let over_counted = Self::len_from_0(self.from.into());
+
+        // Calculate length from 0..self.to
+        let over_count = Self::len_from_0(self.to.into());
+
+        return over_count - over_counted;
+    }
+
+    fn len_from_0(to: u64) -> usize {
+        if to == 0 {
+            return 0;
+        }
+
+        let (digits, length) = Palindrome::digits_and_length(to);
+        let half_length = length.div_ceil(2);
+        let front_part = &digits[0..half_length];
+
+        let mut count = Self::palindromes_to_n_digits(length as u8) as isize;
+        let mut front_part_as_num = 0isize;
+        let mut to_subtract = 1isize;
+        for x in front_part.iter() {
+            to_subtract *= 10;
+            front_part_as_num *= 10;
+            front_part_as_num += *x as isize;
+        }
+        count += front_part_as_num - to_subtract;
+
+        // If second half of the number is higher than first half, +1.
+        let (mut i, mut j) = (half_length, half_length + 1);
+        if length % 2 == 1 {
+            i -= 1; // Don't want to compare center value of uneven digit number.
+        }
+        // Find the first digits from center and out that differ.
+        while i > 0 && digits[i - 1] == digits[j - 1] {
+            i -= 1;
+            j += 1;
+        }
+        if i > 0 && digits[i - 1] < digits[j - 1] {
+            count += 1; // Second half is larger, so ++ that bi***.
+        }
+
+        return count as usize;
+    }
+
+    fn palindromes_to_n_digits(n: u8) -> usize {
+        if n == 0 {
+            return 0;
+        }
+
+        let length = if n % 2 == 0 {
+            2 * 10usize.pow(n as u32 / 2) - 1
+        } else {
+            11 * 10usize.pow(n as u32 / 2) - 1
+        };
+
+        return length;
+    }
 }
 
 impl Iterator for PalindromeIter {
@@ -552,6 +615,8 @@ impl IsPalindrome for Palindrome {
 
 #[cfg(test)]
 mod tests {
+    use crate::PalindromeIter;
+
     use super::Palindrome;
 
     #[test]
@@ -646,5 +711,42 @@ mod tests {
         assert_eq!(202, Palindrome::ge(199));
         assert_eq!(191, Palindrome::ge(190));
         assert_eq!(1991, Palindrome::ge(1990));
+    }
+
+    #[test]
+    fn test_palindromeiter_len() {
+        // 10.
+        let pal_iter = PalindromeIter::from_u64(0, 10);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(2, 10);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(3, 11);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // 100.
+        let pal_iter = PalindromeIter::from_u64(0, 100);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(45, 100);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(55, 100);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(53, 101);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // 1000.
+        let pal_iter = PalindromeIter::from_u64(0, 1000);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(34, 1000);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(0, 1000);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // 10_000.
+        let pal_iter = PalindromeIter::from_u64(0, 10_000);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(0, 10_000);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from_u64(0, 10_000);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // Edge case.
+        let pal_iter = PalindromeIter::from_u64(0, 668);
+        assert_eq!(pal_iter.len(), pal_iter.count());
     }
 }
