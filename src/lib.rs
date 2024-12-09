@@ -58,6 +58,21 @@ impl Palindrome {
     pub const MIN: u64 = 0;
     /// The largest possible palindrome that can fit in a [`u64`].
     pub const MAX: u64 = 18_446_744_066_044_764_481;
+
+    /// Return the palindrome closest to `x`.
+    ///
+    /// **NOTE:** With a special case like `x=10`, return 11 instead of 9.
+    pub fn closest(x: u64) -> Self {
+        let ge = Self::ge(x);
+        let le = Self::le(x);
+        println!("{ge} {le}");
+        if ge - x <= x - le {
+            return ge;
+        }
+
+        le
+    }
+
     /// Construct a palindrome from the first half of a digit and a provided length.
     ///
     /// NOTE: Will panic if `length` isn't `2x` or `2x - 1` the size of `digits_half.len()`.
@@ -618,6 +633,15 @@ mod tests {
     use crate::PalindromeIter;
 
     use super::Palindrome;
+
+    #[test]
+    fn test_palindrome_closest() {
+        assert_eq!(11, Palindrome::closest(10));
+        assert_eq!(38783, Palindrome::closest(38794));
+        assert_eq!(38783, Palindrome::closest(38832));
+        assert_eq!(38883, Palindrome::closest(38833));
+        assert_eq!(11, Palindrome::closest(943854534));
+    }
 
     #[test]
     fn test_construct_palindrome() {
