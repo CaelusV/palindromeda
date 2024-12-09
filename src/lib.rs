@@ -66,7 +66,6 @@ impl Palindrome {
     pub fn closest(x: u64) -> Self {
         let ge = Self::ge(x);
         let le = Self::le(x);
-        println!("{ge} {le}");
         if ge - x <= x - le {
             return ge;
         }
