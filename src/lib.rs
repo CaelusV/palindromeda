@@ -486,7 +486,7 @@ impl PalindromeIter {
         }
     }
 
-    /// Calculate the length of PalindromeIter.
+    /// Calculate the length of [`Self`].
     ///
     /// **NOTE:** This function is much faster than [`Self::count`] for any non-trivial range.
     pub fn len(&self) -> usize {
