@@ -49,6 +49,7 @@ use forward_ref::{forward_ref_binop, forward_ref_op_assign};
 use std::{
     fmt::Display,
     ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign},
+    u64,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
@@ -56,7 +57,7 @@ pub struct Palindrome(u64);
 
 impl Palindrome {
     pub const MIN: u64 = 0;
-    /// The largest possible palindrome that can fit in a [`u64`].
+    /// The largest possible palindrome that can fit in a [`std::u64`].
     pub const MAX: u64 = 18_446_744_066_044_764_481;
 
     /// Return the palindrome closest to `x`.
@@ -463,6 +464,9 @@ forward_ref_op_assign!(impl SubAssign, sub_assign for u64, Palindrome);
 pub struct PalindromeIter {
     from: Palindrome,
     to: Palindrome,
+    // Hacky solution, but can't be bothered to do it "properly".
+    to_n_palindromes: u64,
+    n: u64, // Current idx.
 }
 
 impl PalindromeIter {
@@ -474,6 +478,8 @@ impl PalindromeIter {
         Self {
             from: Palindrome::ge(from.into()),
             to,
+            to_n_palindromes: u64::MAX,
+            n: 0,
         }
     }
 
@@ -483,13 +489,37 @@ impl PalindromeIter {
             from: Palindrome::ge(from),
             // If it's not a palindrome, then we want to include the previous palindrome.
             to: Palindrome(to),
+            to_n_palindromes: u64::MAX,
+            n: 0,
+        }
+    }
+
+    /// An iterator over the first `n` palindromes.
+    ///
+    /// **ATTENTION:** Panics if `n` is larger than `11844674406`,
+    /// since a [`std::u64`] can't hold a palindrome larger than the 11844674406th palindrome.
+    pub fn first_n_palindromes(n: u64) -> Self {
+        assert!(
+            n <= 11844674406,
+            "A u64 value can't hold Palindromes any larger than the 11844674406th palindrome."
+        );
+
+        Self {
+            from: Palindrome(0),
+            to: Palindrome(u64::MAX),
+            to_n_palindromes: n,
+            n: 0,
         }
     }
 
     /// Calculate the length of [`Self`].
     ///
-    /// **NOTE:** This function is much faster than [`Self::count`] for any non-trivial range.
+    /// **NOTE:** This function is constant time and much faster than [`Self::count`] for any non-trivial range.
     pub fn len(&self) -> usize {
+        if self.to_n_palindromes < u64::MAX {
+            return self.to_n_palindromes as usize;
+        }
+
         // Calculate length from 0..self.from
         let over_counted = Self::len_from_0(self.from.into());
 
@@ -555,9 +585,10 @@ impl Iterator for PalindromeIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         let return_value = self.from;
-        self.from = self.from.next();
 
-        if return_value < self.to {
+        if return_value < self.to && self.n < self.to_n_palindromes {
+            self.from = self.from.next();
+            self.n += 1;
             return Some(return_value);
         } else {
             return None;
@@ -720,6 +751,49 @@ mod tests {
         assert_eq!(191, Palindrome::ge(190));
         assert_eq!(1991, Palindrome::ge(1990));
         assert_eq!(34543, Palindrome::ge(34504));
+    }
+
+    #[test]
+    fn test_palindromeiter_first_n_palindromes() {
+        // First test.
+        let n = 912;
+        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        assert_eq!(n, pal_iter.len() as u64);
+        let mut count = 0;
+        for _ in pal_iter {
+            count += 1;
+        }
+        assert_eq!(n, count);
+
+        // Second test.
+        let n = 0;
+        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        assert_eq!(n, pal_iter.len() as u64);
+        let mut count = 0;
+        for _ in pal_iter {
+            count += 1;
+        }
+        assert_eq!(n, count);
+
+        // Third test.
+        let n = 1;
+        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        assert_eq!(n, pal_iter.len() as u64);
+        let mut count = 0;
+        for _ in pal_iter {
+            count += 1;
+        }
+        assert_eq!(n, count);
+
+        // Fourth test.
+        let n = 32903;
+        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        assert_eq!(n, pal_iter.len() as u64);
+        let mut count = 0;
+        for _ in pal_iter {
+            count += 1;
+        }
+        assert_eq!(n, count);
     }
 
     #[test]
