@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.0] - 2024-12-09
+## [0.3.0] - 2024-12-10
+
+### Added
+
+- Added PalindromeIter::first_n_palindromes to get the first `n` palindromes from 0.
+- Added PalindromeIter::first_n_palindromes_from to get the first `n` palindromes from a palindrome.
+
+## [0.2.1] - 2024-12-09
 
 ### Fixed
 
