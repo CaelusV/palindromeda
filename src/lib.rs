@@ -496,16 +496,14 @@ impl PalindromeIter {
 
     /// An iterator over the first `n` palindromes.
     ///
-    /// **ATTENTION:** Panics if `n` is larger than `11844674406`,
-    /// since a [`std::u64`] can't hold a palindrome larger than the 11844674406th palindrome.
+    /// **ATTENTION:** Panics if last palindrome would be larger than [`Palindrome::MAX`]
     pub fn first_n_palindromes(n: usize) -> Self {
         Self::first_n_palindromes_from(n, Palindrome(0))
     }
 
     /// An iterator over the first `n` palindromes from the first palindrome `from`.
     ///
-    /// **ATTENTION:** Panics if last palindrome would be larger than `11844674406`,
-    /// since a [`std::u64`] can't hold a palindrome larger than the 11844674406th palindrome.
+    /// **ATTENTION:** Panics if last palindrome would be larger than [`Palindrome::MAX`].
     pub fn first_n_palindromes_from(n: usize, from: Palindrome) -> Self {
         // Length of 0..from
         let len_from_0 = Self::len_from_0(from.into());
