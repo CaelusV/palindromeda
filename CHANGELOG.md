@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2024-12-11
+
+### Changed
+
+- Renamed PalindromeIter::first_n_palindromes -> PalindromeIter::first_n
+- Renamed PalindromeIter::first_n_palindromes_from -> PalindromeIter::first_n_from
+- Palindrome::{MIN, MAX} are now of type Palindrome
+- Optimized Palindrome::len
+
+### Added
+
+- Added Palindrome::nth
+- Added Palindrome::to_n
+- Conversion from &Palindrome for u64
+
+### Fixed
+
+- Fixed comparison of Palindrome causing stack overflow
+
 ## [0.3.0] - 2024-12-10
 
 ### Added
