@@ -329,19 +329,19 @@ impl PartialOrd<u64> for Palindrome {
 
 impl PartialOrd<Palindrome> for u64 {
     fn ge(&self, other: &Palindrome) -> bool {
-        self >= other
+        *self >= other.0
     }
 
     fn gt(&self, other: &Palindrome) -> bool {
-        self > other
+        *self > other.0
     }
 
     fn le(&self, other: &Palindrome) -> bool {
-        self <= other
+        *self <= other.0
     }
 
     fn lt(&self, other: &Palindrome) -> bool {
-        self < other
+        *self < other.0
     }
 
     fn partial_cmp(&self, other: &Palindrome) -> Option<std::cmp::Ordering> {
