@@ -56,9 +56,9 @@ use std::{
 pub struct Palindrome(u64);
 
 impl Palindrome {
-    pub const MIN: u64 = 0;
+    pub const MIN: Self = Palindrome(0);
     /// The largest possible palindrome that can fit in a [`std::u64`].
-    pub const MAX: u64 = 18_446_744_066_044_764_481;
+    pub const MAX: Self = Palindrome(18_446_744_066_044_764_481);
 
     /// Return the palindrome closest to `x`.
     ///
@@ -151,6 +151,13 @@ impl Palindrome {
         None
     }
 
+    /// Return the `n` value of [`Self`].
+    ///
+    /// Opposite of [`Self::nth`].
+    pub fn to_n(&self) -> usize {
+        PalindromeIter::len_from_0(self.into())
+    }
+
     /// Return the previous palindromic number.
     ///
     /// **NOTE:** Lowest return-value is [`Self::MIN`].
@@ -158,17 +165,17 @@ impl Palindrome {
         if self.0 == 0 {
             return Self(0);
         }
-        Self::le(self.0 - 1)
+        Self::le(self - 1)
     }
 
     /// Return the next palindromic number.
     ///
     /// **NOTE:** Highest return-value is [`Self::MAX`].
     pub fn next(&self) -> Self {
-        if self.0 >= Self::MAX {
-            return Self(Self::MAX);
+        if *self >= Self::MAX {
+            return Self::MAX;
         }
-        Self::ge(self.0 + 1)
+        Self::ge(self + 1)
     }
 
     /// Return the first palindromic number that is less than or equal to `x`.
@@ -228,7 +235,7 @@ impl Palindrome {
     /// **ATTENTION:** Any value above [`Self::MAX`] will return [`Self::MAX`].
     pub fn ge(x: u64) -> Self {
         if x >= Self::MAX {
-            return Self(Self::MAX);
+            return Self::MAX;
         }
 
         if x.is_palindrome() {
@@ -276,6 +283,12 @@ impl Display for Palindrome {
 
 impl From<Palindrome> for u64 {
     fn from(value: Palindrome) -> Self {
+        value.0
+    }
+}
+
+impl From<&Palindrome> for u64 {
+    fn from(value: &Palindrome) -> Self {
         value.0
     }
 }
@@ -494,9 +507,6 @@ forward_ref_op_assign!(impl SubAssign, sub_assign for u64, Palindrome);
 pub struct PalindromeIter {
     from: Palindrome,
     to: Palindrome,
-    // Hacky solution, but can't be bothered to do it "properly".
-    to_n_palindromes: usize,
-    n: usize, // Current idx.
 }
 
 impl PalindromeIter {
@@ -512,8 +522,6 @@ impl PalindromeIter {
         Self {
             from: Palindrome::ge(from.into()),
             to,
-            to_n_palindromes: usize::MAX,
-            n: 0,
         }
     }
 
@@ -523,8 +531,6 @@ impl PalindromeIter {
             from: Palindrome::ge(from),
             // If it's not a palindrome, then we want to include the previous palindrome.
             to: Palindrome(to),
-            to_n_palindromes: usize::MAX,
-            n: 0,
         }
     }
 
@@ -540,16 +546,14 @@ impl PalindromeIter {
     ///
     /// **NOTE:** Any palindrome larger than [`Palindrome::MAX`] won't be included
     /// and will instead return [`None`]
-    pub fn first_n_from(mut n: usize, from: Palindrome) -> Self {
-        // Length of 0..from
-        let len_from_0 = Self::len_from_0(from.into());
-        n = usize::min(n, Self::MAX_N - len_from_0);
+    pub fn first_n_from(n: usize, from: Palindrome) -> Self {
+        if let Some(pal) = Palindrome::nth(from.to_n() + n) {
+            return Self { from, to: pal };
+        }
 
         Self {
             from,
-            to: Palindrome(u64::MAX),
-            to_n_palindromes: n,
-            n: 0,
+            to: Palindrome::MAX,
         }
     }
 
@@ -557,10 +561,6 @@ impl PalindromeIter {
     ///
     /// **NOTE:** This function is constant time and much faster than [`Self::count`] for any non-trivial range.
     pub fn len(&self) -> usize {
-        if self.to_n_palindromes < usize::MAX {
-            return self.to_n_palindromes as usize;
-        }
-
         // Calculate length from 0..self.from
         let over_counted = Self::len_from_0(self.from.into());
 
@@ -656,9 +656,8 @@ impl Iterator for PalindromeIter {
     fn next(&mut self) -> Option<Self::Item> {
         let return_value = self.from;
 
-        if return_value < self.to && self.n < self.to_n_palindromes {
+        if return_value < self.to {
             self.from = self.from.next();
-            self.n += 1;
             return Some(return_value);
         } else {
             return None;
