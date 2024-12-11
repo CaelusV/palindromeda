@@ -121,6 +121,36 @@ impl Palindrome {
         (digits, length)
     }
 
+    /// Return the nth palindrome (0-based indexing).
+    ///
+    /// **NOTE:** Returns [`None`] if the palindrome is larger than [`Self::MAX`].
+    pub fn nth(n: usize) -> Option<Self> {
+        if n >= PalindromeIter::MAX_N {
+            return None;
+        }
+
+        // 10th number (9 on 0-based indexing) is an edge case.
+        if n < 10 {
+            return Some(Self(n as u64));
+        }
+
+        let mut n_copy = n;
+        for n_digits in 1..=20 {
+            // n_digits = 2
+            if n_copy < PalindromeIter::palindromes_in_n_digits(n_digits) {
+                // Remove the palindromes below n-digit palindromes.
+                n_copy -= PalindromeIter::palindromes_in_n_digits(n_digits - 1);
+                let first_n_digits = n_digits.div_ceil(2);
+                let first_half = 10u64.pow(first_n_digits as u32 - 1) + n_copy as u64;
+                let (digits_half, _) = Self::digits_and_length(first_half);
+
+                return Some(Self::construct_palindrome(n_digits.into(), &digits_half));
+            }
+        }
+
+        None
+    }
+
     /// Return the previous palindromic number.
     ///
     /// **NOTE:** Lowest return-value is [`Self::MIN`].
@@ -470,7 +500,11 @@ pub struct PalindromeIter {
 }
 
 impl PalindromeIter {
-    /// Iterate over all palindromes in the range `from..to`.
+    pub const MIN_N: usize = 0;
+    /// The number of palindromes that can fit in a [`std::u64`].
+    pub const MAX_N: usize = 11844674406;
+
+    /// Return an iterator over all palindromes in the range `from..to`.
     ///
     /// **NOTE:** [`std::iter::Step`] is currently nightly/experimental,
     /// so this will have to do for now.
@@ -483,7 +517,7 @@ impl PalindromeIter {
         }
     }
 
-    /// Iterate over all palindromes in the range `from..to`.
+    /// Return an iterator over all palindromes in the range `from..to`.
     pub fn from_u64(from: u64, to: u64) -> Self {
         Self {
             from: Palindrome::ge(from),
@@ -494,7 +528,7 @@ impl PalindromeIter {
         }
     }
 
-    /// An iterator over the first `n` palindromes.
+    /// Return an iterator over the first `n` palindromes.
     ///
     /// **NOTE:** Any palindrome larger than [`Palindrome::MAX`] won't be included
     /// and will instead return [`None`].
@@ -502,15 +536,14 @@ impl PalindromeIter {
         Self::first_n_from(n, Palindrome(0))
     }
 
-    /// An iterator over the first `n` palindromes from the first palindrome `from`.
+    /// Return an iterator over the first `n` palindromes from the first palindrome `from`.
     ///
     /// **NOTE:** Any palindrome larger than [`Palindrome::MAX`] won't be included
     /// and will instead return [`None`]
     pub fn first_n_from(mut n: usize, from: Palindrome) -> Self {
         // Length of 0..from
         let len_from_0 = Self::len_from_0(from.into());
-        // There is a max of 11844674406 palindromes in a u64.
-        n = usize::min(n, 11844674406 - len_from_0);
+        n = usize::min(n, Self::MAX_N - len_from_0);
 
         Self {
             from,
@@ -520,7 +553,7 @@ impl PalindromeIter {
         }
     }
 
-    /// Calculate the length of [`Self`].
+    /// Return the length of [`Self`].
     ///
     /// **NOTE:** This function is constant time and much faster than [`Self::count`] for any non-trivial range.
     pub fn len(&self) -> usize {
@@ -574,18 +607,46 @@ impl PalindromeIter {
         return count as usize;
     }
 
+    // Will crash if n > 20.
     fn palindromes_in_n_digits(n: u8) -> usize {
-        if n == 0 {
-            return 0;
-        }
+        const N_DIGIT_NUMBER_PALINDROME: [usize; 21] = [
+            0,
+            10,
+            19,
+            109,
+            199,
+            1099,
+            1999,
+            10999,
+            19999,
+            109999,
+            199999,
+            1099999,
+            1999999,
+            10999999,
+            19999999,
+            109999999,
+            199999999,
+            1099999999,
+            1999999999,
+            10999999999,
+            19999999999,
+        ];
 
-        let length = if n % 2 == 0 {
-            2 * 10usize.pow(n as u32 / 2) - 1
-        } else {
-            11 * 10usize.pow(n as u32 / 2) - 1
-        };
+        // The old way of doing it.
+        // Might as well keep around.
+        //
+        // if n == 0 {
+        //     return 0;
+        // }
 
-        return length;
+        // let length = if n % 2 == 0 {
+        //     2 * 10usize.pow(n as u32 / 2) - 1
+        // } else {
+        //     11 * 10usize.pow(n as u32 / 2) - 1
+        // };
+
+        return N_DIGIT_NUMBER_PALINDROME[n as usize];
     }
 }
 
@@ -667,7 +728,7 @@ mod tests {
     }
 
     #[test]
-    fn test_construct_palindrome() {
+    fn test_palindrome_construct_palindrome() {
         assert_eq!(34543, Palindrome::construct_palindrome(5, &vec![3, 4, 5]));
         assert_eq!(345543, Palindrome::construct_palindrome(6, &vec![3, 4, 5]));
         assert_eq!(0, Palindrome::construct_palindrome(1, &vec![0]));
@@ -684,14 +745,52 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_construct_palindrome_panic_on_too_short_length() {
+    fn test_palindrome_construct_palindrome_panic_on_too_short_length() {
         assert_eq!(34543, Palindrome::construct_palindrome(4, &vec![3, 4, 5]));
     }
 
     #[test]
     #[should_panic]
-    fn test_construct_palindrome_panic_on_too_big_length() {
+    fn test_palindrome_construct_palindrome_panic_on_too_big_length() {
         assert_eq!(34543, Palindrome::construct_palindrome(7, &vec![3, 4, 5]));
+    }
+
+    #[test]
+    fn test_palindrome_nth() {
+        // REMEMBER IT'S 0-BASED INDEXING.
+        for n in 0..=9 {
+            assert_eq!(n as u64, Palindrome::nth(n).unwrap());
+        }
+
+        // Test large nth values.
+        let n = 438907;
+        let mut pal = Palindrome::le(0);
+        for _ in 0..n {
+            pal = pal.next();
+        }
+        assert_eq!(pal, Palindrome::nth(n).unwrap());
+
+        // Another one.
+        let n = 9999;
+        let mut pal = Palindrome::le(0);
+        for _ in 0..n {
+            pal = pal.next();
+        }
+        assert_eq!(pal, Palindrome::nth(n).unwrap());
+
+        // And another one.
+        let n = 109834;
+        let mut pal = Palindrome::le(0);
+        for _ in 0..n {
+            pal = pal.next();
+        }
+        assert_eq!(pal, Palindrome::nth(n).unwrap());
+
+        // Test None values.
+        let n = PalindromeIter::MAX_N - 1; // 0-based indexing.
+        assert_eq!(Palindrome::MAX, Palindrome::nth(n).unwrap());
+        let n = PalindromeIter::MAX_N; // 0-based indexing.
+        assert_eq!(None, Palindrome::nth(n));
     }
 
     #[test]
@@ -780,12 +879,12 @@ mod tests {
         assert_eq!(n, pal_iter.len());
 
         // Fourth test.
-        let n = 11844674406; // Max palindromes.
+        let n = PalindromeIter::MAX_N; // Max palindromes.
         let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n, pal_iter.len());
 
         // Fifth test.
-        let n = 11844674407; // Max + 1 palindromes.
+        let n = PalindromeIter::MAX_N + 1; // Max + 1 palindromes.
         let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n - 1, pal_iter.len());
     }
