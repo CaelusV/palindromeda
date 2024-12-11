@@ -497,14 +497,14 @@ impl PalindromeIter {
     /// An iterator over the first `n` palindromes.
     ///
     /// **ATTENTION:** Panics if last palindrome would be larger than [`Palindrome::MAX`]
-    pub fn first_n_palindromes(n: usize) -> Self {
-        Self::first_n_palindromes_from(n, Palindrome(0))
+    pub fn first_n(n: usize) -> Self {
+        Self::first_n_from(n, Palindrome(0))
     }
 
     /// An iterator over the first `n` palindromes from the first palindrome `from`.
     ///
     /// **ATTENTION:** Panics if last palindrome would be larger than [`Palindrome::MAX`].
-    pub fn first_n_palindromes_from(n: usize, from: Palindrome) -> Self {
+    pub fn first_n_from(n: usize, from: Palindrome) -> Self {
         // Length of 0..from
         let len_from_0 = Self::len_from_0(from.into());
         assert!(
@@ -766,7 +766,7 @@ mod tests {
     fn test_palindromeiter_first_n_palindromes() {
         // First test.
         let n = 912;
-        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -776,7 +776,7 @@ mod tests {
 
         // Second test.
         let n = 0;
-        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -786,7 +786,7 @@ mod tests {
 
         // Third test.
         let n = 1;
-        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -796,7 +796,7 @@ mod tests {
 
         // Fourth test.
         let n = 32903;
-        let pal_iter = PalindromeIter::first_n_palindromes(n);
+        let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -809,7 +809,7 @@ mod tests {
     fn test_palindromeiter_first_n_palindromes_from() {
         // First test.
         let n = 912;
-        let pal_iter = PalindromeIter::first_n_palindromes_from(n, Palindrome::le(9));
+        let pal_iter = PalindromeIter::first_n_from(n, Palindrome::le(9));
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -819,7 +819,7 @@ mod tests {
 
         // Second test.
         let n = 0;
-        let pal_iter = PalindromeIter::first_n_palindromes_from(n, Palindrome::closest(38743));
+        let pal_iter = PalindromeIter::first_n_from(n, Palindrome::closest(38743));
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -829,7 +829,7 @@ mod tests {
 
         // Third test.
         let n = 1;
-        let pal_iter = PalindromeIter::first_n_palindromes_from(n, Palindrome::ge(98734));
+        let pal_iter = PalindromeIter::first_n_from(n, Palindrome::ge(98734));
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
@@ -839,7 +839,7 @@ mod tests {
 
         // Fourth test.
         let n = 32903;
-        let pal_iter = PalindromeIter::first_n_palindromes_from(n, Palindrome::le(2222));
+        let pal_iter = PalindromeIter::first_n_from(n, Palindrome::le(2222));
         assert_eq!(n, pal_iter.len());
         let mut count = 0;
         for _ in pal_iter {
