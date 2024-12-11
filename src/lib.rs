@@ -125,7 +125,7 @@ impl Palindrome {
     ///
     /// **NOTE:** Returns [`None`] if the palindrome is larger than [`Self::MAX`].
     pub fn nth(n: usize) -> Option<Self> {
-        if n >= PalindromeIter::MAX_N {
+        if n > PalindromeIter::MAX_N {
             return None;
         }
 
@@ -512,7 +512,7 @@ pub struct PalindromeIter {
 impl PalindromeIter {
     pub const MIN_N: usize = 0;
     /// The number of palindromes that can fit in a [`std::u64`].
-    pub const MAX_N: usize = 11844674406;
+    pub const MAX_N: usize = 11844674405;
 
     /// Return an iterator over all palindromes in the range `from..to`.
     ///
@@ -786,9 +786,9 @@ mod tests {
         assert_eq!(pal, Palindrome::nth(n).unwrap());
 
         // Test None values.
-        let n = PalindromeIter::MAX_N - 1; // 0-based indexing.
-        assert_eq!(Palindrome::MAX, Palindrome::nth(n).unwrap());
         let n = PalindromeIter::MAX_N; // 0-based indexing.
+        assert_eq!(Palindrome::MAX, Palindrome::nth(n).unwrap());
+        let n = PalindromeIter::MAX_N + 1; // 0-based indexing.
         assert_eq!(None, Palindrome::nth(n));
     }
 
@@ -934,14 +934,14 @@ mod tests {
         assert_eq!(pal_iter.len(), pal_iter.count());
         let pal_iter = PalindromeIter::from_u64(34, 1000);
         assert_eq!(pal_iter.len(), pal_iter.count());
-        let pal_iter = PalindromeIter::from_u64(0, 1000);
+        let pal_iter = PalindromeIter::from_u64(745, 1000);
         assert_eq!(pal_iter.len(), pal_iter.count());
         // 10_000.
         let pal_iter = PalindromeIter::from_u64(0, 10_000);
         assert_eq!(pal_iter.len(), pal_iter.count());
-        let pal_iter = PalindromeIter::from_u64(0, 10_000);
+        let pal_iter = PalindromeIter::from_u64(569, 10_000);
         assert_eq!(pal_iter.len(), pal_iter.count());
-        let pal_iter = PalindromeIter::from_u64(0, 10_000);
+        let pal_iter = PalindromeIter::from_u64(28, 10_000);
         assert_eq!(pal_iter.len(), pal_iter.count());
         // Edge case.
         let pal_iter = PalindromeIter::from_u64(0, 668);
