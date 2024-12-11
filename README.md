@@ -35,9 +35,13 @@ Is 69 a palindrome? false
 ```
 
 ## Generating palindromes
-Generating a palindrome is as easy as using either `Palindrome::le` or `Palindrome::ge`
-for the nearest palindrome to your number:
+Generating a palindrome is as easy as using either `Palindrome::le`,
+`Palindrome::ge` or `Palindrome::closest` for the nearest palindrome
+to a number, or by retrieving it based on its palindrome-index
+with `Palindrome::nth`:
 ```rust
+use palindromeda::Palindrome;
+
 let number1: u64 = 420; // This number is too high.
 // Let's get a palindrome that's lower.
 println!("Palindrome that's lower: {}", Palindrome::le(number1));
@@ -45,14 +49,29 @@ println!("Palindrome that's lower: {}", Palindrome::le(number1));
 let number2: u64 = 1337;
 // Let's get a palindrome that's higher.
 println!("Palindrome that's higher: {}", Palindrome::ge(number2));
+
+let number3: u64 = 5340; // Which palindrome is closest?
+println!("Closest palindrome: {}", Palindrome::closest(number3));
+
+let number4: usize = 1000; // 1001st palindrome (0-based indexing)
+println!("1001st palindrome: {}", Palindrome::nth(number4).unwrap());
 ```
 Output:
 ```text
 Palindrome that's lower: 414
 Palindrome that's higher: 1441
+Closest palindrome: 5335
+1001st palindrome: 90109
 ```
 And if you want, you can go from palindrome to palindrome with the
 `Palindrome::previous` and `Palindrome::next` functions.
 
 ## Iterating over palindromes
-With `PalindromeIter` you can also iterate over a large swathe of palindromes.
+With `PalindromeIter` you can iterate over a large swathe of palindromes.
+You can iterate over a custom range with `PalindromeIter::from_u64` or
+iterate over the first `n` palindromes with `PalindromeIter::first_n`.
+
+You can also iterate over the first `n` palindromes after (and including)
+a specific palindrome with `PalindromeIter::first_n_from`.
+Be sure to use `PalindromeIter::len` for quickly determining the
+length of the iterator.
