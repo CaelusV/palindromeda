@@ -1,6 +1,6 @@
 [package]
 name = "palindromeda"
-version = "0.3.0"
+version = "1.0.0"
 description = "Palindrome number generator and checker at blazing speed"
 documentation = "https://docs.rs/palindromeda"
 repository = "https://github.com/CaelusV/palindromeda"
