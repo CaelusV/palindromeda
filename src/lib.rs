@@ -547,7 +547,7 @@ impl PalindromeIter {
         let half_length = length.div_ceil(2);
         let front_part = &digits[0..half_length];
 
-        let mut count = Self::palindromes_to_n_digits(length as u8) as isize;
+        let mut count = Self::palindromes_in_n_digits(length as u8) as isize;
         let mut front_part_as_num = 0isize;
         let mut to_subtract = 1isize;
         for x in front_part.iter() {
@@ -574,7 +574,7 @@ impl PalindromeIter {
         return count as usize;
     }
 
-    fn palindromes_to_n_digits(n: u8) -> usize {
+    fn palindromes_in_n_digits(n: u8) -> usize {
         if n == 0 {
             return 0;
         }
