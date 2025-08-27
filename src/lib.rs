@@ -617,7 +617,7 @@ impl PalindromeIter {
     }
 
     // Will crash if n > 20.
-    fn palindromes_in_n_digits(n: u8) -> usize {
+    const fn palindromes_in_n_digits(n: u8) -> usize {
         const N_DIGIT_NUMBER_PALINDROME: [usize; 21] = [
             0,
             10,
