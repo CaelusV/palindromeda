@@ -117,17 +117,44 @@ impl Palindrome {
         Palindrome(palindrome)
     }
 
-    /// Return the digits and the length of a number.
-    fn to_digits(mut x: u64) -> Vec<u8> {
+    /// Return the digits a number.
+    fn to_digits(x: u64) -> Vec<u8> {
         let length = x.checked_ilog10().unwrap_or(0) as usize + 1;
-        let mut digits = vec![0; length];
 
-        for idx in 1..=length {
-            digits[length - idx] = (x % 10) as u8;
-            x /= 10;
+        return match length {
+            1 => Vec::from(to_digits_array(x, [0; 1])),
+            2 => Vec::from(to_digits_array(x, [0; 2])),
+            3 => Vec::from(to_digits_array(x, [0; 3])),
+            4 => Vec::from(to_digits_array(x, [0; 4])),
+            5 => Vec::from(to_digits_array(x, [0; 5])),
+            6 => Vec::from(to_digits_array(x, [0; 6])),
+            7 => Vec::from(to_digits_array(x, [0; 7])),
+            8 => Vec::from(to_digits_array(x, [0; 8])),
+            9 => Vec::from(to_digits_array(x, [0; 9])),
+            10 => Vec::from(to_digits_array(x, [0; 10])),
+            11 => Vec::from(to_digits_array(x, [0; 11])),
+            12 => Vec::from(to_digits_array(x, [0; 12])),
+            13 => Vec::from(to_digits_array(x, [0; 13])),
+            14 => Vec::from(to_digits_array(x, [0; 14])),
+            15 => Vec::from(to_digits_array(x, [0; 15])),
+            16 => Vec::from(to_digits_array(x, [0; 16])),
+            17 => Vec::from(to_digits_array(x, [0; 17])),
+            18 => Vec::from(to_digits_array(x, [0; 18])),
+            19 => Vec::from(to_digits_array(x, [0; 19])),
+            20 => Vec::from(to_digits_array(x, [0; 20])),
+            _ => unreachable!("u64 can't fit more digits."),
+        };
+
+        const fn to_digits_array<const N: usize>(mut x: u64, mut arr: [u8; N]) -> [u8; N] {
+            let mut idx = 1;
+            while idx <= N {
+                arr[N - idx] = (x % 10) as u8;
+                x /= 10;
+                idx += 1;
+            }
+
+            arr
         }
-
-        digits
     }
 
     /// Return the nth palindrome (0-based indexing).
