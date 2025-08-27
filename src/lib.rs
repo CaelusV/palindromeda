@@ -804,19 +804,10 @@ impl PalindromeIter {
     ///
     /// **NOTE:** [`std::iter::Step`] is currently nightly/experimental,
     /// so this will have to do for now.
-    pub const fn from(from: Palindrome, to: Palindrome) -> Self {
+    pub fn from<T: Into<u64>, U: Into<u64>>(from: T, to: U) -> Self {
         Self {
-            from: Palindrome::ge(from.0),
-            to,
-        }
-    }
-
-    /// Return an iterator over all palindromes in the range `from..to`.
-    pub const fn from_u64(from: u64, to: u64) -> Self {
-        Self {
-            from: Palindrome::ge(from),
-            // If it's not a palindrome, then we want to include the previous palindrome.
-            to: Palindrome(to),
+            from: Palindrome::ge(from.into()),
+            to: Palindrome(to.into()),
         }
     }
 
@@ -942,11 +933,9 @@ impl Iterator for PalindromeIter {
     type Item = Palindrome;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let return_value = self.from;
-
-        if return_value < self.to {
+        if self.from < self.to {
             self.from = self.from.next();
-            return Some(return_value);
+            return Some(self.from);
         } else {
             return None;
         }
