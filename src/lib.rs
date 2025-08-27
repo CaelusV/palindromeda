@@ -73,7 +73,7 @@ use std::{
 };
 
 struct PalindromeDigits {
-    pub arr: [u8; Self::MAX_N],
+    arr: [u8; Self::MAX_N],
     length: usize,
 }
 
@@ -82,10 +82,6 @@ impl PalindromeDigits {
 
     const fn from(arr: [u8; Self::MAX_N], length: usize) -> Self {
         Self { arr, length }
-    }
-
-    fn get(&self) -> &[u8] {
-        &self.arr[Self::MAX_N - self.length..]
     }
 
     const fn len(&self) -> usize {
@@ -195,7 +191,7 @@ impl Palindrome {
     /// Return the nth palindrome (0-based indexing).
     ///
     /// **NOTE:** Returns [`None`] if the palindrome is larger than [`Self::MAX`].
-    pub fn nth(n: usize) -> Option<Self> {
+    pub const fn nth(n: usize) -> Option<Self> {
         if n > PalindromeIter::MAX_N {
             return None;
         }
@@ -206,7 +202,8 @@ impl Palindrome {
         }
 
         let mut n_copy = n;
-        for n_digits in 1..=Self::MAX_N {
+        let mut n_digits = 1;
+        while n_digits <= Self::MAX_N {
             // n_digits = 2
             if n_copy < PalindromeIter::palindromes_in_n_digits(n_digits as u8) {
                 // Remove the palindromes below n-digit palindromes.
@@ -215,11 +212,9 @@ impl Palindrome {
                 let first_half = 10u64.pow(first_n_digits as u32 - 1) + n_copy as u64;
                 let digits_half = Self::to_digits(first_half);
 
-                return Some(Self::construct_palindrome(
-                    n_digits.into(),
-                    digits_half.get(),
-                ));
+                return Some(Self::construct_palindrome(n_digits, &digits_half.arr));
             }
+            n_digits += 1;
         }
 
         None
