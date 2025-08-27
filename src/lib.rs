@@ -66,7 +66,7 @@ use forward_ref::{forward_ref_binop, forward_ref_op_assign, forward_ref_unop};
 use std::{
     fmt::Display,
     ops::{
-        Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Div,
+        Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Deref, Div,
         DivAssign, Index, IndexMut, Mul, MulAssign, Not, Range, RangeTo, Rem, RemAssign, Shl,
         ShlAssign, Shr, ShrAssign, Sub, SubAssign,
     },
@@ -385,6 +385,14 @@ impl Palindrome {
             fh_idx -= 1;
             sh_idx += 1;
         }
+    }
+}
+
+impl Deref for Palindrome {
+    type Target = u64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
