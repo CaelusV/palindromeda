@@ -121,21 +121,16 @@ impl Palindrome {
     }
 
     /// Return the digits and the length of a number.
-    fn digits_and_length(mut x: u64) -> (Vec<u8>, usize) {
-        let mut length = 0;
-        let mut digits = Vec::new();
+    fn to_digits(mut x: u64) -> Vec<u8> {
+        let length = x.checked_ilog10().unwrap_or(0) as usize + 1;
+        let mut digits = vec![0; length];
 
-        // We use a "do while" loop, to account for when x=0.
-        loop {
-            digits.push((x % 10) as u8);
+        for idx in 1..=length {
+            digits[length - idx] = (x % 10) as u8;
             x /= 10;
-            length += 1;
-            if x == 0 {
-                break;
-            }
         }
-        digits.reverse(); // Reversing isn't that terrible in release mode.
-        (digits, length)
+
+        digits
     }
 
     /// Return the nth palindrome (0-based indexing).
@@ -159,7 +154,7 @@ impl Palindrome {
                 n_copy -= PalindromeIter::palindromes_in_n_digits(n_digits - 1);
                 let first_n_digits = n_digits.div_ceil(2);
                 let first_half = 10u64.pow(first_n_digits as u32 - 1) + n_copy as u64;
-                let (digits_half, _) = Self::digits_and_length(first_half);
+                let digits_half = Self::to_digits(first_half);
 
                 return Some(Self::construct_palindrome(n_digits.into(), &digits_half));
             }
@@ -201,15 +196,16 @@ impl Palindrome {
             return Palindrome(x);
         }
 
-        let (mut digits, mut length) = Self::digits_and_length(x);
-        let half_length = length.div_ceil(2); // As in amount of digits.
+        let mut digits = Self::to_digits(x);
+        let half_length = digits.len().div_ceil(2); // As in amount of digits.
         let mut fh_idx = half_length - 1;
         let mut sh_idx = half_length;
-        if length % 2 == 1 {
+        if digits.len() % 2 == 1 {
             sh_idx -= 1; // We want center value of uneven number.
         }
 
         let mut skip = 0;
+        let mut length = digits.len();
         loop {
             // 100 -> 99
             // 372 -> 363
@@ -259,17 +255,17 @@ impl Palindrome {
             return Palindrome(x);
         }
 
-        let (mut digits, length) = Self::digits_and_length(x);
-        let half_length = length.div_ceil(2); // As in amount of digits.
+        let mut digits = Self::to_digits(x);
+        let half_length = digits.len().div_ceil(2); // As in amount of digits.
         let mut fh_idx = half_length - 1;
         let mut sh_idx = half_length;
-        if length % 2 == 1 {
+        if digits.len() % 2 == 1 {
             fh_idx -= 1; // We don't want center value of uneven number.
         }
 
         loop {
             if digits[fh_idx] > digits[sh_idx] {
-                return Self::construct_palindrome(length, &digits[..half_length]);
+                return Self::construct_palindrome(digits.len(), &digits[..half_length]);
             }
             if digits[fh_idx] < digits[sh_idx] {
                 // First try to upgrade center value, if it's 9, set to 0 and continue.
@@ -283,7 +279,7 @@ impl Palindrome {
                     digits[center_idx - i] += 1;
                     break;
                 }
-                return Self::construct_palindrome(length, &digits[..half_length]);
+                return Self::construct_palindrome(digits.len(), &digits[..half_length]);
             }
 
             fh_idx -= 1;
@@ -592,11 +588,11 @@ impl PalindromeIter {
             return 0;
         }
 
-        let (digits, length) = Palindrome::digits_and_length(to);
-        let half_length = length.div_ceil(2);
+        let digits = Palindrome::to_digits(to);
+        let half_length = digits.len().div_ceil(2);
         let front_part = &digits[0..half_length];
 
-        let mut count = Self::palindromes_in_n_digits(length as u8) as isize;
+        let mut count = Self::palindromes_in_n_digits(digits.len() as u8) as isize;
         let mut front_part_as_num = 0isize;
         let mut to_subtract = 1isize;
         for x in front_part.iter() {
@@ -608,7 +604,7 @@ impl PalindromeIter {
 
         // If second half of the number is higher than first half, +1.
         let (mut i, mut j) = (half_length, half_length + 1);
-        if length % 2 == 1 {
+        if digits.len() % 2 == 1 {
             i -= 1; // Don't want to compare center value of uneven digit number.
         }
         // Find the first digits from center and out that differ.
