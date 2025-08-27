@@ -183,7 +183,7 @@ impl Palindrome {
     /// Construct a palindrome from the first half of a digit and a provided length.
     ///
     /// NOTE: Will panic if `length` isn't `2x` or `2x - 1` the size of `digits_half.len()`.
-    const fn construct_palindrome(length: usize, digits_half: &PalindromeDigits) -> Self {
+    const fn construct(digits_half: &PalindromeDigits, length: usize) -> Self {
         // If we have a 5-digit number, then we construct by using
         // the 1st, 2nd, 3rd, 2nd, and 1st elements.
         // If we have a 6-digit number, then we construct by using
@@ -249,7 +249,7 @@ impl Palindrome {
                 let first_half = 10u64.pow(first_n_digits as u32 - 1) + n_copy as u64;
                 let digits_half = Self::to_digits(first_half);
 
-                return Some(Self::construct_palindrome(n_digits, &digits_half));
+                return Some(Self::construct(&digits_half, n_digits));
             }
             n_digits += 1;
         }
@@ -307,7 +307,7 @@ impl Palindrome {
             // 4003 -> 3993
             if digits.get(fh_idx) < digits.get(sh_idx) {
                 digits.narrow_start_end(0, half_length);
-                return Self::construct_palindrome(length, &digits);
+                return Self::construct(&digits, length);
             }
             if digits.get(fh_idx) > digits.get(sh_idx) {
                 // First try to downgrade center value, if it's 0, set to 9 and continue.
@@ -333,7 +333,7 @@ impl Palindrome {
                     break;
                 }
                 digits.narrow_start_end(skip, half_length);
-                return Self::construct_palindrome(length, &digits);
+                return Self::construct(&digits, length);
             }
 
             fh_idx -= 1;
@@ -365,7 +365,7 @@ impl Palindrome {
         loop {
             if digits.get(fh_idx) > digits.get(sh_idx) {
                 digits.narrow_start_end(0, half_length);
-                return Self::construct_palindrome(length, &digits);
+                return Self::construct(&digits, length);
             }
             if digits.get(fh_idx) < digits.get(sh_idx) {
                 // First try to upgrade center value, if it's 9, set to 0 and continue.
@@ -382,7 +382,7 @@ impl Palindrome {
                     break;
                 }
                 digits.narrow_start_end(0, half_length);
-                return Self::construct_palindrome(length, &digits);
+                return Self::construct(&digits, length);
             }
 
             fh_idx -= 1;
@@ -1008,30 +1008,30 @@ mod tests {
     }
 
     #[test]
-    fn test_palindrome_construct_palindrome() {
+    fn test_palindrome_construct() {
         let pd = Palindrome::to_digits(345);
-        assert_eq!(34543, Palindrome::construct_palindrome(5, &pd));
-        assert_eq!(345543, Palindrome::construct_palindrome(6, &pd));
+        assert_eq!(34543, Palindrome::construct(&pd, 5));
+        assert_eq!(345543, Palindrome::construct(&pd, 6));
         let pd = Palindrome::to_digits(0);
-        assert_eq!(0, Palindrome::construct_palindrome(1, &pd));
-        assert_eq!(0, Palindrome::construct_palindrome(2, &pd));
+        assert_eq!(0, Palindrome::construct(&pd, 1));
+        assert_eq!(0, Palindrome::construct(&pd, 2));
         let pd = Palindrome::to_digits(1710);
-        assert_eq!(1710171, Palindrome::construct_palindrome(7, &pd));
-        assert_eq!(17100171, Palindrome::construct_palindrome(8, &pd));
+        assert_eq!(1710171, Palindrome::construct(&pd, 7));
+        assert_eq!(17100171, Palindrome::construct(&pd, 8));
     }
 
     #[test]
     #[should_panic]
-    fn test_palindrome_construct_palindrome_panic_on_too_short_length() {
+    fn test_palindrome_construct_panic_on_too_short_length() {
         let pd = Palindrome::to_digits(345);
-        assert_eq!(34543, Palindrome::construct_palindrome(4, &pd));
+        assert_eq!(34543, Palindrome::construct(&pd, 4));
     }
 
     #[test]
     #[should_panic]
-    fn test_palindrome_construct_palindrome_panic_on_too_big_length() {
+    fn test_palindrome_construct_panic_on_too_big_length() {
         let pd = Palindrome::to_digits(345);
-        assert_eq!(34543, Palindrome::construct_palindrome(7, &pd));
+        assert_eq!(34543, Palindrome::construct(&pd, 7));
     }
 
     #[test]
