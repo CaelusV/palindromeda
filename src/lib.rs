@@ -952,7 +952,18 @@ pub trait IsPalindrome {
 
 impl IsPalindrome for u64 {
     fn is_palindrome(&self) -> bool {
-        Palindrome::is_palindrome(*self)
+        let mut x = *self;
+        if x % 10 == 0 && x != 0 {
+            return false;
+        }
+
+        let mut right_half = 0;
+        while x > right_half {
+            right_half = right_half * 10 + x % 10;
+            x /= 10;
+        }
+
+        return x == right_half || x == right_half / 10;
     }
 }
 
