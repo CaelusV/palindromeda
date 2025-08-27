@@ -92,18 +92,22 @@ impl PalindromeDigits {
         }
     }
 
+    const fn get(&self, idx: usize) -> u8 {
+        self.arr[self.start + idx]
+    }
+
+    const fn get_mut(&mut self, idx: usize) -> &mut u8 {
+        &mut self.arr[self.start + idx]
+    }
+
     const fn len(&self) -> usize {
         self.length
     }
 
-    const fn set_start(&mut self, start: usize) {
-        self.start = start;
-        self.length = self.end - start;
-    }
-
-    const fn set_end(&mut self, end: usize) {
-        self.end = end;
-        self.length = end - self.start;
+    const fn narrow_start_end(&mut self, start: usize, end: usize) {
+        self.end = self.start + end;
+        self.start += start;
+        self.length = end - start;
     }
 }
 
@@ -117,7 +121,7 @@ impl Index<usize> for PalindromeDigits {
 
 impl IndexMut<usize> for PalindromeDigits {
     fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        &mut self.arr[self.start + idx]
+        self.get_mut(idx)
     }
 }
 
@@ -189,13 +193,13 @@ impl Palindrome {
         let mut idx = 0; // first half idx
         while idx < digits_half.len() {
             palindrome *= 10;
-            palindrome += digits_half.arr[digits_half.start + idx] as u64;
+            palindrome += digits_half.get(idx) as u64;
             idx += 1;
         }
         idx = 1; // second half reverse idx
         while idx <= second_half_range {
             palindrome *= 10;
-            palindrome += digits_half.arr[digits_half.start + second_half_range - idx] as u64;
+            palindrome += digits_half.get(second_half_range - idx) as u64;
             idx += 1;
         }
 
@@ -301,26 +305,26 @@ impl Palindrome {
             // 372 -> 363
             // 4847 -> 4774
             // 4003 -> 3993
-            if digits.arr[digits.start + fh_idx] < digits.arr[digits.start + sh_idx] {
-                digits.set_end(digits.start + half_length);
+            if digits.get(fh_idx) < digits.get(sh_idx) {
+                digits.narrow_start_end(0, half_length);
                 return Self::construct_palindrome(length, &digits);
             }
-            if digits.arr[digits.start + fh_idx] > digits.arr[digits.start + sh_idx] {
+            if digits.get(fh_idx) > digits.get(sh_idx) {
                 // First try to downgrade center value, if it's 0, set to 9 and continue.
                 // Once non-0 value found, -- it.
                 let center_idx = half_length - 1; // Center idx.
                 let mut i = 0;
                 while i < half_length {
-                    if digits.arr[digits.start + center_idx - i] == 0 {
-                        digits.arr[digits.start + center_idx - i] = 9;
+                    if digits.get(center_idx - i) == 0 {
+                        *digits.get_mut(center_idx - i) = 9;
                         i += 1;
                         continue;
                     }
-                    digits.arr[digits.start + center_idx - i] -= 1;
+                    *digits.get_mut(center_idx - i) -= 1;
                     // EDGE CASE: 100 -> 99 (length of first half digits CHANGES).
                     // EDGE CASE: 10 -> 9 (length of first half digits DOESN'T CHANGE).
-                    if center_idx - i == 0 && digits.arr[digits.start + center_idx - i] == 0 {
-                        digits.arr[digits.start + center_idx - i] = 9;
+                    if center_idx - i == 0 && digits.get(center_idx - i) == 0 {
+                        *digits.get_mut(center_idx - i) = 9;
                         if length % 2 == 1 {
                             skip += 1;
                         }
@@ -328,8 +332,7 @@ impl Palindrome {
                     }
                     break;
                 }
-                digits.set_end(digits.start + half_length); // set_end first, otherwise set_start will ruin your day.
-                digits.set_start(digits.start + skip);
+                digits.narrow_start_end(skip, half_length);
                 return Self::construct_palindrome(length, &digits);
             }
 
@@ -360,25 +363,25 @@ impl Palindrome {
         }
 
         loop {
-            if digits.arr[digits.start + fh_idx] > digits.arr[digits.start + sh_idx] {
-                digits.set_end(digits.start + half_length);
+            if digits.get(fh_idx) > digits.get(sh_idx) {
+                digits.narrow_start_end(0, half_length);
                 return Self::construct_palindrome(length, &digits);
             }
-            if digits.arr[digits.start + fh_idx] < digits.arr[digits.start + sh_idx] {
+            if digits.get(fh_idx) < digits.get(sh_idx) {
                 // First try to upgrade center value, if it's 9, set to 0 and continue.
                 // Once non-9 value found, ++ it. 999 is palindrome and can't happen.
                 let center_idx = half_length - 1; // Center idx.
                 let mut i = 0;
                 while i < half_length {
-                    if digits.arr[digits.start + center_idx - i] == 9 {
-                        digits.arr[digits.start + center_idx - i] = 0;
+                    if digits.get(center_idx - i) == 9 {
+                        *digits.get_mut(center_idx - i) = 0;
                         i += 1;
                         continue;
                     }
-                    digits.arr[digits.start + center_idx - i] += 1;
+                    *digits.get_mut(center_idx - i) += 1;
                     break;
                 }
-                digits.set_end(digits.start + half_length);
+                digits.narrow_start_end(0, half_length);
                 return Self::construct_palindrome(length, &digits);
             }
 
@@ -860,11 +863,11 @@ impl PalindromeIter {
         let mut count = Self::palindromes_in_n_digits(length as u8) as isize;
         let mut front_part_as_num = 0isize;
         let mut to_subtract = 1isize;
-        let mut idx = digits.start;
-        while idx < digits.start + half_length {
+        let mut idx = 0;
+        while idx < half_length {
             to_subtract *= 10;
             front_part_as_num *= 10;
-            front_part_as_num += digits.arr[idx] as isize;
+            front_part_as_num += digits.get(idx) as isize;
             idx += 1;
         }
         count += front_part_as_num - to_subtract;
@@ -875,11 +878,11 @@ impl PalindromeIter {
             i -= 1; // Don't want to compare center value of uneven digit number.
         }
         // Find the first digits from center and out that differ.
-        while i > 0 && digits.arr[digits.start + i - 1] == digits.arr[digits.start + j - 1] {
+        while i > 0 && digits.get(i - 1) == digits.get(j - 1) {
             i -= 1;
             j += 1;
         }
-        if i > 0 && digits.arr[digits.start + i - 1] < digits.arr[digits.start + j - 1] {
+        if i > 0 && digits.get(i - 1) < digits.get(j - 1) {
             count += 1; // Second half is larger, so ++ that bi***.
         }
 
