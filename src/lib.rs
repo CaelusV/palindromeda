@@ -54,7 +54,7 @@
 //!
 //! ## Iterating over palindromes
 //! With [`PalindromeIter`] you can iterate over a large swathe of palindromes.
-//! You can iterate over a custom range with [`PalindromeIter::from_u64`] or
+//! You can iterate over a custom range with [`PalindromeIter::from`] or
 //! iterate over the first `n` palindromes with [`PalindromeIter::first_n`].
 //!
 //! You can also iterate over the first `n` palindromes after (and including)
@@ -1176,40 +1176,40 @@ mod tests {
         assert_eq!(n, pal_iter.len());
     }
 
-    // #[test]
-    // fn test_palindromeiter_len() {
-    //     // 10.
-    //     let pal_iter = PalindromeIter::from_u64(0, 10);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(2, 10);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(3, 11);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     // 100.
-    //     let pal_iter = PalindromeIter::from_u64(0, 100);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(45, 100);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(55, 100);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(53, 101);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     // 1000.
-    //     let pal_iter = PalindromeIter::from_u64(0, 1000);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(34, 1000);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(745, 1000);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     // 10_000.
-    //     let pal_iter = PalindromeIter::from_u64(0, 10_000);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(569, 10_000);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     let pal_iter = PalindromeIter::from_u64(28, 10_000);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    //     // Edge case.
-    //     let pal_iter = PalindromeIter::from_u64(0, 668);
-    //     assert_eq!(pal_iter.len(), pal_iter.count());
-    // }
+    #[test]
+    fn test_palindromeiter_len() {
+        // 10.
+        let pal_iter = PalindromeIter::from(0u64, 10u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(2u64, 10u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(3u64, 11u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // 100.
+        let pal_iter = PalindromeIter::from(0u64, 100u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(45u64, 100u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(55u64, 100u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(53u64, 101u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // 1000.
+        let pal_iter = PalindromeIter::from(0u64, 1000u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(34u64, 1000u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(745u64, 1000u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // 10_000.
+        let pal_iter = PalindromeIter::from(0u64, 10_000u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(569u64, 10_000u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        let pal_iter = PalindromeIter::from(28u64, 10_000u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+        // Edge case.
+        let pal_iter = PalindromeIter::from(0u64, 668u64);
+        assert_eq!(pal_iter.len(), pal_iter.count());
+    }
 }
