@@ -62,12 +62,13 @@
 //! Be sure to use [`PalindromeIter::len`] for quickly determining the
 //! length of the iterator.
 
-use forward_ref::{forward_ref_binop, forward_ref_op_assign};
+use forward_ref::{forward_ref_binop, forward_ref_op_assign, forward_ref_unop};
 use std::{
     fmt::Display,
     ops::{
-        Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Range, RangeTo, Rem,
-        RemAssign, Sub, SubAssign,
+        Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Div,
+        DivAssign, Index, IndexMut, Mul, MulAssign, Not, Range, RangeTo, Rem, RemAssign, Shl,
+        ShlAssign, Shr, ShrAssign, Sub, SubAssign,
     },
     u64,
 };
@@ -492,6 +493,99 @@ impl AddAssign<Palindrome> for u64 {
 
 forward_ref_op_assign!(impl AddAssign, add_assign for u64, Palindrome);
 
+impl BitAnd<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn bitand(self, rhs: u64) -> Self::Output {
+        self.0 & rhs
+    }
+}
+
+forward_ref_binop!(impl BitAnd, bitand for Palindrome, u64);
+
+impl BitAnd<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn bitand(self, rhs: Palindrome) -> Self::Output {
+        self & rhs.0
+    }
+}
+
+forward_ref_binop!(impl BitAnd, bitand for u64, Palindrome);
+
+impl BitAndAssign<Palindrome> for u64 {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: Palindrome) {
+        *self &= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl BitAndAssign, bitand_assign for u64, Palindrome);
+
+impl BitOr<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn bitor(self, rhs: u64) -> Self::Output {
+        self.0 | rhs
+    }
+}
+
+forward_ref_binop!(impl BitOr, bitor for Palindrome, u64);
+
+impl BitOr<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn bitor(self, rhs: Palindrome) -> Self::Output {
+        self | rhs.0
+    }
+}
+
+forward_ref_binop!(impl BitOr, bitor for u64, Palindrome);
+
+impl BitOrAssign<Palindrome> for u64 {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: Palindrome) {
+        *self |= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl BitOrAssign, bitor_assign for u64, Palindrome);
+
+impl BitXor<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn bitxor(self, rhs: u64) -> Self::Output {
+        self.0 ^ rhs
+    }
+}
+
+forward_ref_binop!(impl BitXor, bitxor for Palindrome, u64);
+
+impl BitXor<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn bitxor(self, rhs: Palindrome) -> Self::Output {
+        self ^ rhs.0
+    }
+}
+
+forward_ref_binop!(impl BitXor, bitxor for u64, Palindrome);
+
+impl BitXorAssign<Palindrome> for u64 {
+    #[inline]
+    fn bitxor_assign(&mut self, rhs: Palindrome) {
+        *self ^= rhs.0
+    }
+}
+
+forward_ref_op_assign!(impl BitXorAssign, bitxor_assign for u64, Palindrome);
+
 impl Div<u64> for Palindrome {
     type Output = u64;
 
@@ -554,6 +648,17 @@ impl MulAssign<Palindrome> for u64 {
 
 forward_ref_op_assign!(impl MulAssign, mul_assign for u64, Palindrome);
 
+impl Not for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn not(self) -> Self::Output {
+        !self.0
+    }
+}
+
+forward_ref_unop!(impl Not, not for Palindrome);
+
 impl Rem<u64> for Palindrome {
     type Output = u64;
 
@@ -584,6 +689,68 @@ impl RemAssign<Palindrome> for u64 {
 }
 
 forward_ref_op_assign!(impl RemAssign, rem_assign for u64, Palindrome);
+
+impl Shl<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn shl(self, rhs: u64) -> Self::Output {
+        self.0 << rhs
+    }
+}
+
+forward_ref_binop!(impl Shl, shl for Palindrome, u64);
+
+impl Shl<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn shl(self, rhs: Palindrome) -> Self::Output {
+        self << rhs.0
+    }
+}
+
+forward_ref_binop!(impl Shl, shl for u64, Palindrome);
+
+impl ShlAssign<Palindrome> for u64 {
+    #[inline]
+    fn shl_assign(&mut self, rhs: Palindrome) {
+        *self <<= rhs.0;
+    }
+}
+
+forward_ref_op_assign!(impl ShlAssign, shl_assign for u64, Palindrome);
+
+impl Shr<u64> for Palindrome {
+    type Output = u64;
+
+    #[inline]
+    fn shr(self, rhs: u64) -> Self::Output {
+        self.0 >> rhs
+    }
+}
+
+forward_ref_binop!(impl Shr, shr for Palindrome, u64);
+
+impl Shr<Palindrome> for u64 {
+    type Output = u64;
+
+    #[inline]
+    fn shr(self, rhs: Palindrome) -> Self::Output {
+        self >> rhs.0
+    }
+}
+
+forward_ref_binop!(impl Shr, shr for u64, Palindrome);
+
+impl ShrAssign<Palindrome> for u64 {
+    #[inline]
+    fn shr_assign(&mut self, rhs: Palindrome) {
+        *self >>= rhs.0;
+    }
+}
+
+forward_ref_op_assign!(impl ShrAssign, shr_assign for u64, Palindrome);
 
 impl Sub<u64> for Palindrome {
     type Output = u64;
@@ -623,7 +790,7 @@ pub struct PalindromeIter {
 
 impl PalindromeIter {
     /// The 0-based index of the largest palindrome that can fit in a [`std::u64`].
-    pub const MAX_N: usize = 11844674405;
+    const MAX_N: usize = 11844674405;
 
     /// Return an iterator over all palindromes in the range `from..to`.
     ///
