@@ -986,6 +986,7 @@ impl IsPalindrome for u8 {
 }
 
 impl IsPalindrome for Palindrome {
+    #[inline]
     fn is_palindrome(&self) -> bool {
         true
     }
