@@ -94,27 +94,24 @@ impl Palindrome {
     /// Construct a palindrome from the first half of a digit and a provided length.
     ///
     /// NOTE: Will panic if `length` isn't `2x` or `2x - 1` the size of `digits_half.len()`.
-    fn construct_palindrome(length: usize, digits_half: &[u8]) -> Self {
-        assert_eq!(
-            length.div_ceil(2),
-            digits_half.len(),
-            "length ({length}) isn't compatible with the size of digits_half ({}). Valid length values: '{}' & '{}'.",
-            digits_half.len(), digits_half.len() * 2 - 1, digits_half.len() * 2
-        );
-
+    const fn construct_palindrome(length: usize, digits_half: &[u8]) -> Self {
         // If we have a 5-digit number, then we construct by using
         // the 1st, 2nd, 3rd, 2nd, and 1st elements.
         // If we have a 6-digit number, then we construct by using
         // the 1st, 2nd, 3rd, 3rd, 2nd, and 1st elements.
         let second_half_range = length - digits_half.len();
         let mut palindrome = 0;
-        for fh_idx in 0..digits_half.len() {
+        let mut idx = 0; // first half idx
+        while idx < digits_half.len() {
             palindrome *= 10;
-            palindrome += digits_half[fh_idx] as u64;
+            palindrome += digits_half[idx] as u64;
+            idx += 1;
         }
-        for sh_rev_idx in 1..=second_half_range {
+        idx = 1; // second half reverse idx
+        while idx <= second_half_range {
             palindrome *= 10;
-            palindrome += digits_half[second_half_range - sh_rev_idx] as u64;
+            palindrome += digits_half[second_half_range - idx] as u64;
+            idx += 1;
         }
 
         Palindrome(palindrome)
