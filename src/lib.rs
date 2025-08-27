@@ -65,9 +65,63 @@
 use forward_ref::{forward_ref_binop, forward_ref_op_assign};
 use std::{
     fmt::Display,
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign},
+    ops::{
+        Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Range, RangeTo, Rem,
+        RemAssign, Sub, SubAssign,
+    },
     u64,
 };
+
+struct PalindromeDigits {
+    pub arr: [u8; Self::MAX_N],
+    length: usize,
+}
+
+impl PalindromeDigits {
+    const MAX_N: usize = 20; // Length of largest possible palindrome.
+
+    const fn from(arr: [u8; Self::MAX_N], length: usize) -> Self {
+        Self { arr, length }
+    }
+
+    fn get(&self) -> &[u8] {
+        &self.arr[Self::MAX_N - self.length..]
+    }
+
+    const fn len(&self) -> usize {
+        self.length
+    }
+}
+
+impl Index<usize> for PalindromeDigits {
+    type Output = u8;
+
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.arr[Self::MAX_N - self.length + idx]
+    }
+}
+
+impl IndexMut<usize> for PalindromeDigits {
+    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
+        &mut self.arr[Self::MAX_N - self.length + idx]
+    }
+}
+
+impl Index<Range<usize>> for PalindromeDigits {
+    type Output = [u8];
+
+    fn index(&self, idx: Range<usize>) -> &Self::Output {
+        &self.arr[Self::MAX_N - self.length + idx.start..Self::MAX_N - self.length + idx.end]
+    }
+}
+
+impl Index<RangeTo<usize>> for PalindromeDigits {
+    type Output = [u8];
+
+    fn index(&self, idx: RangeTo<usize>) -> &Self::Output {
+        &self.arr[Self::MAX_N - self.length..Self::MAX_N - self.length + idx.end]
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Palindrome(u64);
@@ -76,6 +130,8 @@ impl Palindrome {
     pub const MIN: Self = Palindrome(0);
     /// The largest possible palindrome that can fit in a [`std::u64`].
     pub const MAX: Self = Palindrome(18_446_744_066_044_764_481);
+    const MAX_N: usize = 20; // Length of the largest possible palindrome.
+    const TO_DIGITS_ARRAY: [u8; Self::MAX_N] = [0; Self::MAX_N];
 
     /// Return the palindrome closest to `x`.
     ///
@@ -117,44 +173,23 @@ impl Palindrome {
         Palindrome(palindrome)
     }
 
-    /// Return the digits a number.
-    fn to_digits(x: u64) -> Vec<u8> {
-        let length = x.checked_ilog10().unwrap_or(0) as usize + 1;
-
-        return match length {
-            1 => Vec::from(to_digits_array(x, [0; 1])),
-            2 => Vec::from(to_digits_array(x, [0; 2])),
-            3 => Vec::from(to_digits_array(x, [0; 3])),
-            4 => Vec::from(to_digits_array(x, [0; 4])),
-            5 => Vec::from(to_digits_array(x, [0; 5])),
-            6 => Vec::from(to_digits_array(x, [0; 6])),
-            7 => Vec::from(to_digits_array(x, [0; 7])),
-            8 => Vec::from(to_digits_array(x, [0; 8])),
-            9 => Vec::from(to_digits_array(x, [0; 9])),
-            10 => Vec::from(to_digits_array(x, [0; 10])),
-            11 => Vec::from(to_digits_array(x, [0; 11])),
-            12 => Vec::from(to_digits_array(x, [0; 12])),
-            13 => Vec::from(to_digits_array(x, [0; 13])),
-            14 => Vec::from(to_digits_array(x, [0; 14])),
-            15 => Vec::from(to_digits_array(x, [0; 15])),
-            16 => Vec::from(to_digits_array(x, [0; 16])),
-            17 => Vec::from(to_digits_array(x, [0; 17])),
-            18 => Vec::from(to_digits_array(x, [0; 18])),
-            19 => Vec::from(to_digits_array(x, [0; 19])),
-            20 => Vec::from(to_digits_array(x, [0; 20])),
-            _ => unreachable!("u64 can't fit more digits."),
+    /// Return a PalindromeDigits.
+    /// NOTE: Wasting stack since arrays can't have dynamic length.
+    const fn to_digits(mut x: u64) -> PalindromeDigits {
+        let length = match x.checked_ilog10() {
+            Some(x) => x as usize + 1,
+            None => 1,
         };
+        let mut arr: [u8; Self::MAX_N] = Self::TO_DIGITS_ARRAY;
 
-        const fn to_digits_array<const N: usize>(mut x: u64, mut arr: [u8; N]) -> [u8; N] {
-            let mut idx = 1;
-            while idx <= N {
-                arr[N - idx] = (x % 10) as u8;
-                x /= 10;
-                idx += 1;
-            }
-
-            arr
+        let mut idx = 1;
+        while idx <= length {
+            arr[Self::MAX_N - idx] = (x % 10) as u8;
+            x /= 10;
+            idx += 1;
         }
+
+        PalindromeDigits::from(arr, length)
     }
 
     /// Return the nth palindrome (0-based indexing).
@@ -171,16 +206,19 @@ impl Palindrome {
         }
 
         let mut n_copy = n;
-        for n_digits in 1..=20 {
+        for n_digits in 1..=Self::MAX_N {
             // n_digits = 2
-            if n_copy < PalindromeIter::palindromes_in_n_digits(n_digits) {
+            if n_copy < PalindromeIter::palindromes_in_n_digits(n_digits as u8) {
                 // Remove the palindromes below n-digit palindromes.
-                n_copy -= PalindromeIter::palindromes_in_n_digits(n_digits - 1);
+                n_copy -= PalindromeIter::palindromes_in_n_digits(n_digits as u8 - 1);
                 let first_n_digits = n_digits.div_ceil(2);
                 let first_half = 10u64.pow(first_n_digits as u32 - 1) + n_copy as u64;
                 let digits_half = Self::to_digits(first_half);
 
-                return Some(Self::construct_palindrome(n_digits.into(), &digits_half));
+                return Some(Self::construct_palindrome(
+                    n_digits.into(),
+                    digits_half.get(),
+                ));
             }
         }
 
@@ -643,7 +681,7 @@ impl PalindromeIter {
         return count as usize;
     }
 
-    // Will crash if n > 20.
+    // Will crash if n > Self::MAX_N.
     const fn palindromes_in_n_digits(n: u8) -> usize {
         const N_DIGIT_NUMBER_PALINDROME: [usize; 21] = [
             0,
