@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2025-08-28
+
+### Changed
+
+- Major optimizations across all functionality (most between 40%-50% time reduction)
+- Made most functions/methods const (except for PalindromeIter::from)
+- PalindromeIter::from now takes Into<u64> as arguments
+
+### Added
+
+- Palindrome now supports bitwise operators
+- Palindrome now supports the !-unary operator
+- Palindrome now supports deref
+
+### Removed
+
+- PalindromeIter::from_u64 has been removed in favor of PalindromeIter::from
+
 ## [1.0.0] - 2024-12-11
 
 ### Changed
