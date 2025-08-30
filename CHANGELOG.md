@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2025-08-30
+
+### Changed
+
+- Small optimizations reducing the time taken by some functions up to -5%.
+
+### Fixed
+
+- Fixed PalindromeIter::next producing palindromes that were off by one palindrome.
+
 ## [2.0.0] - 2025-08-28
 
 ### Changed

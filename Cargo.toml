@@ -1,13 +1,13 @@
 [package]
 name = "palindromeda"
-version = "2.0.0"
+version = "2.0.1"
 description = "Palindrome number generator and checker at blazing speed"
 documentation = "https://docs.rs/palindromeda"
 repository = "https://github.com/CaelusV/palindromeda"
 edition = "2021"
 license = "MIT"
 readme = "README.md"
-keywords = ["palindrome", "number"]
+keywords = ["palindrome", "palindromes", "number"]
 
 [dependencies]
 forward_ref = "1.0.0"
