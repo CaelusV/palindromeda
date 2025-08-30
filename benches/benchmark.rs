@@ -83,6 +83,13 @@ fn iter_len_bench(c: &mut Criterion) {
     c.bench_function("iter_len 100", |b| b.iter(|| black_box(P.len())));
 }
 
+fn iter_iterate_bench(c: &mut Criterion) {
+    const P: PalindromeIter = PalindromeIter::first_n_from(1_000, Palindrome::closest(1_000_000));
+    c.bench_function("iter_iterate 100", |b| {
+        b.iter(|| black_box(P.for_each(|_| ())))
+    });
+}
+
 criterion_group!(
     benches,
     closest_bench,
@@ -97,6 +104,7 @@ criterion_group!(
     iter_from_u64_bench,
     iter_first_n_bench,
     iter_first_n_from_bench,
-    iter_len_bench
+    iter_len_bench,
+    iter_iterate_bench,
 );
 criterion_main!(benches);
