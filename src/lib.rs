@@ -67,8 +67,8 @@ use std::{
     fmt::Display,
     ops::{
         Add, AddAssign, BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Deref, Div,
-        DivAssign, Index, IndexMut, Mul, MulAssign, Not, Range, RangeTo, Rem, RemAssign, Shl,
-        ShlAssign, Shr, ShrAssign, Sub, SubAssign,
+        DivAssign, Mul, MulAssign, Not, Rem, RemAssign, Shl, ShlAssign, Shr, ShrAssign, Sub,
+        SubAssign,
     },
     u64,
 };
@@ -111,36 +111,6 @@ impl PalindromeDigits {
     }
 }
 
-impl Index<usize> for PalindromeDigits {
-    type Output = u8;
-
-    fn index(&self, idx: usize) -> &Self::Output {
-        &self.arr[self.start + idx]
-    }
-}
-
-impl IndexMut<usize> for PalindromeDigits {
-    fn index_mut(&mut self, idx: usize) -> &mut Self::Output {
-        self.get_mut(idx)
-    }
-}
-
-impl Index<Range<usize>> for PalindromeDigits {
-    type Output = [u8];
-
-    fn index(&self, idx: Range<usize>) -> &Self::Output {
-        &self.arr[self.start + idx.start..self.start + idx.end]
-    }
-}
-
-impl Index<RangeTo<usize>> for PalindromeDigits {
-    type Output = [u8];
-
-    fn index(&self, idx: RangeTo<usize>) -> &Self::Output {
-        &self.arr[self.start..self.start + idx.end]
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Palindrome(u64);
 
@@ -148,8 +118,10 @@ impl Palindrome {
     pub const MIN: Self = Palindrome(0);
     /// The largest possible palindrome that can fit in a [`std::u64`].
     pub const MAX: Self = Palindrome(18_446_744_066_044_764_481);
-    const MAX_N: usize = 20; // Length of the largest possible palindrome.
-    const TO_DIGITS_ARRAY: [u8; Self::MAX_N] = [0; Self::MAX_N];
+    /// Length of the largest possible palindrome.
+    const MAX_LEN: usize = 20;
+    /// The 0-based index of the largest palindrome that can fit in a [`std::u64`].
+    const MAX_N: usize = 11844674405;
 
     #[inline]
     const fn is_palindrome(mut x: u64) -> bool {
@@ -213,11 +185,11 @@ impl Palindrome {
             Some(x) => x as usize + 1,
             None => 1,
         };
-        let mut arr: [u8; Self::MAX_N] = Self::TO_DIGITS_ARRAY;
+        let mut arr: [u8; Self::MAX_LEN] = [0; Self::MAX_LEN];
 
         let mut idx = 1;
         while idx <= length {
-            arr[Self::MAX_N - idx] = (x % 10) as u8;
+            arr[Self::MAX_LEN - idx] = (x % 10) as u8;
             x /= 10;
             idx += 1;
         }
@@ -229,7 +201,7 @@ impl Palindrome {
     ///
     /// **NOTE:** Returns [`None`] if the palindrome is larger than [`Self::MAX`].
     pub const fn nth(n: usize) -> Option<Self> {
-        if n > PalindromeIter::MAX_N {
+        if n > Self::MAX_N {
             return None;
         }
 
@@ -268,9 +240,6 @@ impl Palindrome {
     ///
     /// **NOTE:** Lowest return-value is [`Self::MIN`].
     pub const fn previous(&self) -> Self {
-        if self.0 == 0 {
-            return Self(0);
-        }
         Self::le(self.0 - 1)
     }
 
@@ -278,9 +247,6 @@ impl Palindrome {
     ///
     /// **NOTE:** Highest return-value is [`Self::MAX`].
     pub const fn next(&self) -> Self {
-        if self.0 >= Self::MAX.0 {
-            return Self::MAX;
-        }
         Self::ge(self.0 + 1)
     }
 
@@ -296,7 +262,7 @@ impl Palindrome {
         let mut fh_idx = half_length - 1;
         let mut sh_idx = half_length;
         if length % 2 == 1 {
-            sh_idx -= 1; // We want center value of uneven number.
+            sh_idx -= 1; // We don't want center value of uneven number.
         }
 
         let mut skip = 0;
@@ -800,9 +766,6 @@ pub struct PalindromeIter {
 }
 
 impl PalindromeIter {
-    /// The 0-based index of the largest palindrome that can fit in a [`std::u64`].
-    const MAX_N: usize = 11844674405;
-
     /// Return an iterator over all palindromes in the range `from..to`.
     ///
     /// **NOTE:** [`std::iter::Step`] is currently nightly/experimental,
@@ -952,11 +915,11 @@ pub trait IsPalindrome {
 
 impl IsPalindrome for u64 {
     fn is_palindrome(&self) -> bool {
-        let mut x = *self;
-        if x % 10 == 0 && x != 0 {
+        if *self % 10 == 0 && *self != 0 {
             return false;
         }
 
+        let mut x = *self;
         let mut right_half = 0;
         while x > right_half {
             right_half = right_half * 10 + x % 10;
@@ -1066,9 +1029,9 @@ mod tests {
         assert_eq!(pal, Palindrome::nth(n).unwrap());
 
         // Test None values.
-        let n = PalindromeIter::MAX_N; // 0-based indexing.
+        let n = Palindrome::MAX_N; // 0-based indexing.
         assert_eq!(Palindrome::MAX, Palindrome::nth(n).unwrap());
-        let n = PalindromeIter::MAX_N + 1; // 0-based indexing.
+        let n = Palindrome::MAX_N + 1; // 0-based indexing.
         assert_eq!(None, Palindrome::nth(n));
     }
 
@@ -1158,12 +1121,12 @@ mod tests {
         assert_eq!(n, pal_iter.len());
 
         // Fourth test.
-        let n = PalindromeIter::MAX_N; // Max palindromes.
+        let n = Palindrome::MAX_N; // Max palindromes.
         let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n, pal_iter.len());
 
         // Fifth test.
-        let n = PalindromeIter::MAX_N + 1; // Max + 1 palindromes.
+        let n = Palindrome::MAX_N + 1; // Max + 1 palindromes.
         let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n - 1, pal_iter.len());
     }
