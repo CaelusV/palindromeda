@@ -762,7 +762,7 @@ forward_ref_op_assign!(impl SubAssign, sub_assign for u64, Palindrome);
 
 pub struct PalindromeIter {
     from: Palindrome,
-    to: Palindrome,
+    to: u64,
 }
 
 impl PalindromeIter {
@@ -773,7 +773,7 @@ impl PalindromeIter {
     pub fn from<T: Into<u64>, U: Into<u64>>(from: T, to: U) -> Self {
         Self {
             from: Palindrome::ge(from.into()),
-            to: Palindrome(to.into()),
+            to: to.into(),
         }
     }
 
@@ -791,12 +791,12 @@ impl PalindromeIter {
     /// and will instead be [`None`].
     pub const fn first_n_from(n: usize, from: Palindrome) -> Self {
         if let Some(pal) = Palindrome::nth(from.to_n() + n) {
-            return Self { from, to: pal };
+            return Self { from, to: pal.0 };
         }
 
         Self {
             from,
-            to: Palindrome::MAX,
+            to: Palindrome::MAX.0,
         }
     }
 
@@ -808,7 +808,7 @@ impl PalindromeIter {
         let over_counted = Self::len_from_0(self.from.0);
 
         // Calculate length from 0..self.to
-        let over_count = Self::len_from_0(self.to.0);
+        let over_count = Self::len_from_0(self.to);
 
         return over_count - over_counted;
     }
@@ -820,10 +820,9 @@ impl PalindromeIter {
         }
 
         let digits = Palindrome::to_digits(to);
-        let length = digits.len();
-        let half_length = length.div_ceil(2);
+        let half_length = digits.len().div_ceil(2);
 
-        let mut count = Self::palindromes_in_n_digits(length as u8) as isize;
+        let mut count = Self::palindromes_in_n_digits(digits.len() as u8) as isize;
         let mut front_part_as_num = 0isize;
         let mut to_subtract = 1isize;
         let mut idx = 0;
@@ -837,7 +836,7 @@ impl PalindromeIter {
 
         // If second half of the number is higher than first half, +1.
         let (mut i, mut j) = (half_length, half_length + 1);
-        if length % 2 == 1 {
+        if digits.len() % 2 == 1 {
             i -= 1; // Don't want to compare center value of uneven digit number.
         }
         // Find the first digits from center and out that differ.
@@ -878,19 +877,6 @@ impl PalindromeIter {
             19999999999,
         ];
 
-        // The old way of doing it.
-        // Might as well keep around.
-        //
-        // if n == 0 {
-        //     return 0;
-        // }
-
-        // let length = if n % 2 == 0 {
-        //     2 * 10usize.pow(n as u32 / 2) - 1
-        // } else {
-        //     11 * 10usize.pow(n as u32 / 2) - 1
-        // };
-
         return N_DIGIT_NUMBER_PALINDROME[n as usize];
     }
 }
@@ -900,8 +886,9 @@ impl Iterator for PalindromeIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.from < self.to {
+            let next_palindrome = self.from;
             self.from = self.from.next();
-            return Some(self.from);
+            return Some(next_palindrome);
         } else {
             return None;
         }
@@ -1129,6 +1116,12 @@ mod tests {
         let n = Palindrome::MAX_N + 1; // Max + 1 palindromes.
         let pal_iter = PalindromeIter::first_n(n);
         assert_eq!(n - 1, pal_iter.len());
+
+        // Test start to end values
+        let pal_iter = PalindromeIter::first_n(10);
+        for (i, p) in pal_iter.enumerate() {
+            assert_eq!(i as u64, p);
+        }
     }
 
     #[test]
@@ -1152,6 +1145,14 @@ mod tests {
         let n = 32903;
         let pal_iter = PalindromeIter::first_n_from(n, Palindrome::le(2222));
         assert_eq!(n, pal_iter.len());
+
+        // Test start and end values
+        let mut pal_iter = PalindromeIter::first_n_from(10, Palindrome::le(22));
+        assert_eq!(22u64, pal_iter.next().unwrap());
+        for _ in 0..8 {
+            pal_iter.next();
+        }
+        assert_eq!(111u64, pal_iter.next().unwrap());
     }
 
     #[test]
