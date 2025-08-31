@@ -790,14 +790,12 @@ impl PalindromeIter {
     /// **NOTE:** Any palindrome larger than [`Palindrome::MAX`] won't be included
     /// and will instead be [`None`].
     pub const fn first_n_from(n: usize, from: Palindrome) -> Self {
-        if let Some(pal) = Palindrome::nth(from.to_n() + n) {
-            return Self { from, to: pal.0 };
-        }
+        let to = match Palindrome::nth(from.to_n() + n) {
+            Some(p) => p.0,
+            None => Palindrome::MAX.0,
+        };
 
-        Self {
-            from,
-            to: Palindrome::MAX.0,
-        }
+        Self { from, to }
     }
 
     /// Return the length of [`Self`].
