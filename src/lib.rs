@@ -281,16 +281,17 @@ impl Palindrome {
                 let center_idx = half_length - 1; // Center idx.
                 let mut i = 0;
                 while i < half_length {
-                    if digits.get(center_idx - i) == 0 {
-                        *digits.get_mut(center_idx - i) = 9;
+                    let current_digit = digits.get_mut(center_idx - i);
+                    if *current_digit == 0 {
+                        *current_digit = 9;
                         i += 1;
                         continue;
                     }
-                    *digits.get_mut(center_idx - i) -= 1;
+                    *current_digit -= 1;
                     // EDGE CASE: 100 -> 99 (length of first half digits CHANGES).
                     // EDGE CASE: 10 -> 9 (length of first half digits DOESN'T CHANGE).
-                    if center_idx - i == 0 && digits.get(center_idx - i) == 0 {
-                        *digits.get_mut(center_idx - i) = 9;
+                    if center_idx - i == 0 && *current_digit == 0 {
+                        *current_digit = 9;
                         if length % 2 == 1 {
                             skip += 1;
                         }
@@ -339,12 +340,13 @@ impl Palindrome {
                 let center_idx = half_length - 1; // Center idx.
                 let mut i = 0;
                 while i < half_length {
-                    if digits.get(center_idx - i) == 9 {
-                        *digits.get_mut(center_idx - i) = 0;
+                    let current_digit = digits.get_mut(center_idx - i);
+                    if *current_digit == 9 {
+                        *current_digit = 0;
                         i += 1;
                         continue;
                     }
-                    *digits.get_mut(center_idx - i) += 1;
+                    *current_digit += 1;
                     break;
                 }
                 digits.narrow_start_end(0, half_length);
