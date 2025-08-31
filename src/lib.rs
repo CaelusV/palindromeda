@@ -160,7 +160,7 @@ impl Palindrome {
         // the 1st, 2nd, 3rd, 2nd, and 1st elements.
         // If we have a 6-digit number, then we construct by using
         // the 1st, 2nd, 3rd, 3rd, 2nd, and 1st elements.
-        let second_half_range = length - digits_half.len();
+        let second_half_length = length - digits_half.len();
         let mut palindrome = 0;
         let mut idx = 0; // first half idx
         while idx < digits_half.len() {
@@ -169,9 +169,9 @@ impl Palindrome {
             idx += 1;
         }
         idx = 1; // second half reverse idx
-        while idx <= second_half_range {
+        while idx <= second_half_length {
             palindrome *= 10;
-            palindrome += digits_half.get(second_half_range - idx) as u64;
+            palindrome += digits_half.get(second_half_length - idx) as u64;
             idx += 1;
         }
 
