@@ -4,7 +4,11 @@ use std::hint::black_box;
 
 fn closest_bench(c: &mut Criterion) {
     c.bench_function("closest 100", |b| {
-        b.iter(|| black_box(Palindrome::closest(289734)))
+        b.iter(|| {
+            for x in 100_000..120_000 {
+                black_box(Palindrome::closest(x));
+            }
+        })
     });
 }
 
@@ -31,13 +35,21 @@ fn next_bench(c: &mut Criterion) {
 
 fn le_bench(c: &mut Criterion) {
     c.bench_function("le 100", |b| {
-        b.iter(|| black_box(Palindrome::le(928374923)))
+        b.iter(|| {
+            for x in 100_000..120_000 {
+                black_box(Palindrome::le(x));
+            }
+        })
     });
 }
 
 fn ge_bench(c: &mut Criterion) {
     c.bench_function("ge 100", |b| {
-        b.iter(|| black_box(Palindrome::ge(928374923)))
+        b.iter(|| {
+            for x in 100_000..120_000 {
+                black_box(Palindrome::ge(x));
+            }
+        })
     });
 }
 
